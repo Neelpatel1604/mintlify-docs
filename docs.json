@@ -137,6 +137,12 @@
             "pages": [
               "integrations/llamaindex/overview"
             ]
+          },
+          {
+            "group": "n8n",
+            "pages": [
+              "integrations/n8n/overview"
+            ]
           }
         ]
       }

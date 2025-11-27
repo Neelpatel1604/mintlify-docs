@@ -1,0 +1,293 @@
+---
+title: "n8n Integration"
+description: "Moorcheh community node for n8n workflow automation"
+---
+
+## What is n8n?
+
+[n8n](https://n8n.io/) is a powerful workflow automation platform that allows you to connect different services and automate tasks. The Moorcheh n8n node enables you to integrate Moorcheh's semantic search and AI capabilities directly into your n8n workflows.
+
+## Installation
+
+### Prerequisites
+
+<CardGroup cols={2}>
+  <Card title="n8n Instance" icon="server">
+    Access to an n8n instance (cloud or self-hosted)
+  </Card>
+  <Card title="Moorcheh API Key" icon="key">
+    API key from [console.moorcheh.ai](https://console.moorcheh.ai)
+  </Card>
+</CardGroup>
+
+### Install Moorcheh Node
+
+<Note>
+Only the n8n instance owner can install and manage community nodes. All members of an n8n instance can use already installed community nodes in their workflows.
+</Note>
+
+<Tabs>
+  <Tab title="From n8n UI">
+    <Steps>
+      <Step title="Open Nodes Panel">
+        Go to the Canvas and open the nodes panel (select '+' or press Tab)
+      </Step>
+      
+      <Step title="Search for Moorcheh">
+        Search for "Moorcheh" in the nodes panel
+        
+        You will see the Moorcheh node in the "More from the community" section at the bottom
+      </Step>
+      
+      <Step title="View Node Details">
+        Select the Moorcheh node to see all supported actions and features
+      </Step>
+      
+      <Step title="Install">
+        Select **Install** to add the node to your n8n instance
+        
+        This will enable all members to use it in their workflows
+      </Step>
+      
+      <Step title="Start Using">
+        Add the Moorcheh node to your workflows and configure your API key
+      </Step>
+    </Steps>
+  </Tab>
+
+  <Tab title="Manual Installation">
+    ### NPM Package
+
+    Install the Moorcheh node package:
+
+    ```bash
+    npm i n8n-nodes-moorcheh
+    ```
+
+    **Package details:**
+    - Package: `n8n-nodes-moorcheh`
+    - NPM: [n8n-nodes-moorcheh](https://www.npmjs.com/package/n8n-nodes-moorcheh)
+
+    ### Self-Hosted n8n
+
+    For self-hosted n8n instances:
+
+    1. Navigate to your n8n installation directory
+    2. Install the package:
+       ```bash
+       npm i n8n-nodes-moorcheh
+       ```
+    3. Restart your n8n instance
+    4. The Moorcheh node will now be available in the nodes panel
+  </Tab>
+</Tabs>
+
+## Configuration
+
+### Set Up Credentials
+
+<Steps>
+  <Step title="Add Moorcheh Node">
+    Add the Moorcheh node to your workflow
+  </Step>
+  
+  <Step title="Configure Credentials">
+    Click on the credentials dropdown and select "Create New"
+  </Step>
+  
+  <Step title="Enter API Key">
+    Enter your Moorcheh API key from [console.moorcheh.ai](https://console.moorcheh.ai)
+  </Step>
+  
+  <Step title="Test Connection">
+    Test the connection to verify your API key is working
+  </Step>
+</Steps>
+
+## Available Operations
+
+The Moorcheh n8n node supports the following operations:
+
+<AccordionGroup>
+  <Accordion title="Namespace Management">
+    - **Create Namespace**: Create a new text or vector namespace
+    - **List Namespaces**: Get all namespaces in your account
+    - **Delete Namespace**: Remove a namespace and all its data
+  </Accordion>
+
+  <Accordion title="Data Operations">
+    - **Upload Text**: Upload text documents to a namespace
+    - **Upload Vectors**: Upload vector embeddings
+    - **Get Documents**: Retrieve specific documents by ID
+    - **Delete Data**: Remove documents or vectors
+  </Accordion>
+
+  <Accordion title="Search & Discovery">
+    - **Search**: Perform semantic search across namespaces
+    - **Filter by Metadata**: Use metadata filters for precise results
+    - **Multi-Namespace Search**: Search across multiple namespaces
+  </Accordion>
+
+  <Accordion title="AI Generation">
+    - **Generate Answer**: Get AI-powered answers from your data
+    - **Choose AI Model**: Select from 8 different AI models
+    - **Custom Prompts**: Add custom instructions for responses
+    - **Chat History**: Maintain conversation context
+  </Accordion>
+</AccordionGroup>
+
+## Use Cases
+
+### Document Processing Workflow
+
+Automatically process incoming documents and make them searchable:
+
+```
+Webhook → Extract Text → Moorcheh (Upload Text) → Slack Notification
+```
+
+### Customer Support Automation
+
+Create an automated support bot with knowledge base search:
+
+```
+Gmail Trigger → Moorcheh (Search) → Moorcheh (Generate Answer) → Send Reply
+```
+
+### Content Management
+
+Sync and search your content across platforms:
+
+```
+Airtable → Transform Data → Moorcheh (Upload Text) → Schedule
+```
+
+### Data Integration
+
+Connect multiple data sources for unified search:
+
+```
+Google Drive → Extract Content → Moorcheh (Upload) → Index Complete
+```
+
+## Example Workflows
+
+### Basic Search Workflow
+
+1. **Trigger**: Manual or webhook
+2. **Moorcheh Node**: Search operation
+   - Namespace: `my-documents`
+   - Query: `{{$json["query"]}}`
+   - Top K: `5`
+3. **Output**: Display search results
+
+### AI-Powered Q&A
+
+1. **Trigger**: HTTP request
+2. **Moorcheh Node**: Generate Answer
+   - Namespace: `knowledge-base`
+   - Query: `{{$json["question"]}}`
+   - AI Model: `anthropic.claude-sonnet-4-20250514-v1:0`
+3. **Response**: Return AI-generated answer
+
+### Document Upload Pipeline
+
+1. **Trigger**: Google Drive (new file)
+2. **Extract Text**: Parse document content
+3. **Moorcheh Node**: Upload Text
+   - Namespace: `documents`
+   - Documents: Transform from previous step
+4. **Notification**: Send confirmation
+
+## Troubleshooting
+
+<AccordionGroup>
+  <Accordion title="Node Not Visible">
+    **Issue**: Can't find Moorcheh node in the nodes panel
+    
+    **Solutions**:
+    - Ensure you have instance owner/admin permissions
+    - Verify the package is installed: `npm list n8n-nodes-moorcheh`
+    - Restart your n8n instance
+    - Check that verified community nodes are enabled
+  </Accordion>
+
+  <Accordion title="Authentication Failed">
+    **Issue**: API key authentication errors
+    
+    **Solutions**:
+    - Verify your API key is correct
+    - Ensure the key hasn't been revoked
+    - Check that you're using the header name `x-api-Key`
+    - Generate a new API key if needed
+  </Accordion>
+
+  <Accordion title="Connection Timeout">
+    **Issue**: Requests timing out
+    
+    **Solutions**:
+    - Check your internet connection
+    - Verify n8n can access `https://api.moorcheh.ai`
+    - Check firewall settings
+    - Increase timeout settings if needed
+  </Accordion>
+
+  <Accordion title="Upload Failures">
+    **Issue**: Data upload operations failing
+    
+    **Solutions**:
+    - Verify namespace exists
+    - Check data format matches requirements
+    - Ensure file size is under 10MB
+    - Validate vector dimensions match namespace
+  </Accordion>
+</AccordionGroup>
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Error Handling" icon="triangle-exclamation">
+    Always add error handling nodes to catch and log failures
+  </Card>
+  <Card title="Rate Limiting" icon="gauge">
+    Implement delays between batch operations to avoid rate limits
+  </Card>
+  <Card title="Secure Credentials" icon="lock">
+    Use n8n's credential management, never hardcode API keys
+  </Card>
+  <Card title="Test Workflows" icon="flask">
+    Test with small datasets before running on production data
+  </Card>
+</CardGroup>
+
+## Community & Support
+
+<CardGroup cols={3}>
+  <Card title="NPM Package" icon="box" href="https://www.npmjs.com/package/n8n-nodes-moorcheh">
+    View package details and documentation
+  </Card>
+  <Card title="n8n Community" icon="users" href="https://community.n8n.io">
+    Join the n8n community forum
+  </Card>
+  <Card title="Moorcheh Support" icon="headset" href="mailto:support@moorcheh.ai">
+    Get help from our team
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Quick Start" icon="rocket" href="/quickstart">
+    Learn Moorcheh basics
+  </Card>
+  <Card title="API Reference" icon="code" href="/api-reference/introduction">
+    Explore all API endpoints
+  </Card>
+  <Card title="Other Integrations" icon="plug" href="/integrations/langchain/overview">
+    LangChain, LlamaIndex, and more
+  </Card>
+  <Card title="n8n Documentation" icon="book" href="https://docs.n8n.io">
+    Learn more about n8n
+  </Card>
+</CardGroup>
+
