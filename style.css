@@ -1,0 +1,6 @@
+/* Custom logo size for Mintlify navbar */
+#navbar img {
+  width: 200px;
+  height: auto;
+}
+
