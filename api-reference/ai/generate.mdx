@@ -1,0 +1,245 @@
+---
+title: "Generate AI Answer"
+api: "POST https://api.moorcheh.ai/v1/answer"
+description: "Generate AI-powered answers to questions using your uploaded data as context or direct AI model calls."
+contentType: "application/json"
+---
+
+## Overview
+
+Generate AI-powered answers to questions with two modes: **Search Mode** (with namespace) and **Direct AI Mode** (empty namespace). The API supports context-aware generation using your data or direct AI model calls.
+
+<Info>
+Supports multiple AI models including Claude 3.7 Sonnet, Claude Sonnet 4, Llama 4 Maverick, and DeepSeek-R1. Use empty string "" as namespace for direct AI calls.
+</Info>
+
+## Authentication
+
+<ParamField header="x-api-Key" type="string" required>
+  Your API key for authentication
+</ParamField>
+
+<ParamField header="Content-Type" type="string" required>
+  Must be `application/json`
+</ParamField>
+
+## Body Parameters
+
+<ParamField body="query" type="string" required>
+  The user's question or query to be answered
+</ParamField>
+
+<ParamField body="namespace" type="string" required>
+  Namespace name for Search Mode, or empty string "" for Direct AI Mode
+</ParamField>
+
+<ParamField body="top_k" type="number">
+  Maximum number of context chunks to retrieve (1-100, default: 5)
+</ParamField>
+
+<ParamField body="threshold" type="number">
+  Minimum relevance score threshold (0-1)
+</ParamField>
+
+<ParamField body="temperature" type="number">
+  AI creativity level (0.0-2.0, default: 0.7). Higher = more creative
+</ParamField>
+
+<ParamField body="type" type="string">
+  Search type: "text" (default)
+</ParamField>
+
+<ParamField body="aiModel" type="string">
+  AI model ID (see Available Models table below)
+</ParamField>
+
+<ParamField body="kiosk_mode" type="boolean">
+  Enable controlled response format (default: false)
+</ParamField>
+
+<ParamField body="chatHistory" type="array">
+  Previous conversation turns for context (default: [])
+</ParamField>
+
+<ParamField body="headerPrompt" type="string">
+  Custom instruction for AI behavior
+</ParamField>
+
+<ParamField body="footerPrompt" type="string">
+  Custom instruction to append (default: "Provide a clear and concise answer.")
+</ParamField>
+
+## Available Models
+
+| Model ID | Name | Provider | Description |
+|----------|------|----------|-------------|
+| anthropic.claude-sonnet-4-20250514-v1:0 | Claude Sonnet 4 | Anthropic | Hybrid reasoning, extended thinking, efficient code generation |
+| anthropic.claude-sonnet-4-5-20250929-v1:0 | Claude Sonnet 4.5 | Anthropic | Latest Claude model with enhanced capabilities and agentic search |
+| meta.llama4-maverick-17b-instruct-v1:0 | Llama 4 Maverick 17B | Meta | 1M token context, fine tuning, text summarization, function calling |
+| meta.llama3-3-70b-instruct-v1:0 | Llama 3.3 70B | Meta | Advanced reasoning and decision making capabilities |
+| amazon.nova-pro-v1:0 | Amazon Nova Pro | Amazon | 300K context, chat optimized, complex reasoning, math |
+| deepseek.r1-v1:0 | DeepSeek R1 | DeepSeek | Advanced reasoning and code generation |
+| openai.gpt-oss-120b-1:0 | OpenAI GPT OSS 120B | OpenAI | Hybrid reasoning, extended thinking, efficient research |
+| qwen.qwen3-32b-v1:0 | Qwen 3 32B | Qwen | Text generation and code generation |
+
+## Field Restrictions
+
+<Warning>
+**Empty Namespace Mode**: Only these fields are allowed: `namespace, query, temperature, chatHistory, footerPrompt, headerPrompt, aiModel`
+
+**Provided Namespace Mode**: All fields are allowed: `namespace, query, top_k, threshold, type, kiosk_mode, aiModel, chatHistory, headerPrompt, footerPrompt, temperature`
+</Warning>
+
+<RequestExample>
+
+```bash Search Mode (with namespace)
+curl -X POST "https://api.moorcheh.ai/v1/answer" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: your-api-key-here" \
+  -d '{
+    "namespace": "my-document-collection",
+    "query": "What are the main benefits of Moorcheh?",
+    "type": "text",
+    "top_k": 5
+  }'
+```
+
+```bash Direct AI Mode (empty namespace)
+curl -X POST "https://api.moorcheh.ai/v1/answer" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: your-api-key-here" \
+  -d '{
+    "namespace": "",
+    "query": "Explain quantum computing in simple terms",
+    "aiModel": "anthropic.claude-sonnet-4-20250514-v1:0",
+    "temperature": 0.7,
+    "chatHistory": [
+      {"role": "user", "content": "What is AI?"},
+      {"role": "assistant", "content": "AI is artificial intelligence..."}
+    ],
+    "headerPrompt": "You are a science teacher.",
+    "footerPrompt": "Use simple language and examples."
+  }'
+```
+
+```json Search Mode Body
+{
+  "namespace": "my-document-collection",
+  "query": "What are the main benefits of serverless?",
+  "top_k": 5,
+  "type": "text"
+}
+```
+
+
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200 - Success
+{
+  "answer": "Serverless architecture offers several benefits, including reduced operational costs as you only pay for what you use, automatic scaling to handle workload changes, and faster time-to-market since developers can focus on code instead of infrastructure management.",
+  "model": "anthropic.claude-3-sonnet-20240229-v1:0",
+  "contextCount": 3,
+  "query": "What are the main benefits of using serverless architecture?"
+}
+```
+
+```json 400 - Bad Request
+{
+  "status": "failure",
+  "message": "Bad Request: query field is required"
+}
+```
+
+```json 401 - Unauthorized
+{
+  "status": "failure",
+  "message": "Unauthorized: Missing API key"
+}
+```
+
+```json 403 - Forbidden
+{
+  "status": "failure",
+  "message": "Forbidden"
+}
+```
+
+```json 404 - Not Found
+{
+  "status": "failure",
+  "message": "Namespace 'my-namespace' not found"
+}
+```
+
+```json 500 - Server Error
+{
+  "status": "failure",
+  "message": "Internal Server Error fetching namespaces."
+}
+```
+
+</ResponseExample>
+
+## Response Fields
+
+<ResponseField name="answer" type="string">
+  The AI-generated answer based on the provided context and query
+</ResponseField>
+
+<ResponseField name="model" type="string">
+  The ID of the AI model used to generate the answer
+</ResponseField>
+
+<ResponseField name="contextCount" type="number">
+  Number of context chunks retrieved and used for generating the answer
+</ResponseField>
+
+<ResponseField name="query" type="string">
+  The original query that was submitted
+</ResponseField>
+
+## API Modes
+
+### Search Mode (with namespace)
+When you provide a namespace, the API searches your data for relevant context and uses it to generate contextual answers.
+
+### Direct AI Mode (empty namespace)
+When you pass an empty string `""` as namespace, the API makes a direct call to the AI model without searching your data.
+
+## Temperature Guide
+
+- **0.0-0.5**: Conservative, factual responses - best for technical documentation
+- **0.5-1.0**: Balanced creativity - good for general Q&A
+- **1.0-2.0**: More creative and varied responses - use carefully for factual content
+
+## Important Notes
+
+- **Search Mode**: The namespace must exist and contain indexed data for meaningful results
+- **Search Mode**: Higher top_k values provide more context but may increase response time
+- **Search Mode**: The threshold parameter can be used to filter low-relevance results
+- **Direct AI Mode**: Use empty string `""` as namespace for direct AI model calls
+- **Field Restrictions**: Empty namespace mode only allows basic AI fields, not search-specific fields
+- **Field Restrictions**: Provided namespace mode allows all fields including search parameters
+- Chat history enables conversational context across multiple queries
+- Custom prompts allow fine-tuning of AI behavior and response format
+- Temperature controls creativity: 0.0 for deterministic, 2.0 for highly creative responses
+- Failed requests still count towards usage limits and are tracked in statistics
+- Some models may have different token limits and capabilities
+
+## Use Cases
+
+- **Customer Support**: Answer customer questions using your documentation
+- **Internal Q&A**: Help employees find answers in company knowledge bases
+- **Educational Tools**: Create AI tutors using educational content
+- **Research Assistance**: Get insights from research papers and publications
+- **Technical Support**: Provide technical answers based on documentation
+- **Content Creation**: Generate content based on existing materials
+
+## Related Endpoints
+
+- [Search](/api-reference/search/query) - Search for relevant context documents
+- [Upload Text Data](/api-reference/data/upload-text) - Add documents for AI context
+- [List Namespaces](/api-reference/namespaces/list) - View available namespaces for generation

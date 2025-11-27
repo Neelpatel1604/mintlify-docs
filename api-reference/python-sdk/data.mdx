@@ -1,0 +1,212 @@
+---
+title: "Data Management"
+description: "Upload and manage your data using the Python SDK"
+---
+
+# Data Management
+
+## upload_documents
+
+Uploads text documents to a text namespace. Moorcheh will process and embed these asynchronously.
+
+### Parameters
+
+<ParamField query="namespace_name" type="str" required>
+  The name of the target text namespace.
+</ParamField>
+
+<ParamField query="documents" type="List[Dict]" required>
+  A list of dictionaries. Each dict requires an id and text key.
+</ParamField>
+
+**Returns:** `Dict[str, Any]` - A dictionary confirming the documents were queued.
+
+**Raises:** `NamespaceNotFound`, `InvalidInputError`.
+
+```python Upload Documents Example
+documents_to_upload = [
+    {"id": "faq-1", "text": "To reset your password, go to the account settings page.", "category": "account"},
+    {"id": "faq-2", "text": "Our return policy allows returns within 30 days of purchase.", "category": "shipping"}
+]
+
+status = client.upload_documents(
+    namespace_name="my-faq-documents",
+    documents=documents_to_upload
+)
+print(status)
+```
+
+## upload_vectors
+
+Uploads pre-computed vectors to a vector namespace. This is a synchronous operation.
+
+### Parameters
+
+<ParamField query="namespace_name" type="str" required>
+  The name of the target vector namespace.
+</ParamField>
+
+<ParamField query="vectors" type="List[Dict]" required>
+  A list of dictionaries. Each dict requires an id and a vector key.
+</ParamField>
+
+**Returns:** `Dict[str, Any]` - A dictionary confirming the upload status.
+
+**Raises:** `NamespaceNotFound`, `InvalidInputError`.
+
+```python Upload Vectors Example
+vectors_to_upload = [
+    {"id": "image_001.jpg", "vector": [0.12, -0.45, ...], "metadata": {"source": "product_database"}},
+    {"id": "image_002.jpg", "vector": [-0.22, 0.81, ...], "metadata": {"source": "product_database"}}
+]
+
+status = client.upload_vectors(
+    namespace_name="my-image-embeddings",
+    vectors=vectors_to_upload
+)
+print(status)
+```
+
+## delete_documents
+
+Deletes specific documents from a text namespace by their IDs.
+
+### Parameters
+
+<ParamField query="namespace_name" type="str" required>
+  The name of the target text namespace.
+</ParamField>
+
+<ParamField query="ids" type="List[Union[str, int]]" required>
+  A list of document IDs to delete.
+</ParamField>
+
+**Returns:** `Dict[str, Any]` - A dictionary confirming the deletion status.
+
+```python Delete Documents Example
+# Delete specific documents by ID
+result = client.delete_documents(
+    namespace_name="my-faq-documents",
+    ids=["faq-1", "faq-3", "faq-5"]
+)
+print(f"Deletion result: {result}")
+```
+
+## delete_vectors
+
+Deletes specific vectors from a vector namespace by their IDs.
+
+### Parameters
+
+<ParamField query="namespace_name" type="str" required>
+  The name of the target vector namespace.
+</ParamField>
+
+<ParamField query="ids" type="List[Union[str, int]]" required>
+  A list of vector IDs to delete.
+</ParamField>
+
+**Returns:** `Dict[str, Any]` - A dictionary confirming the deletion status.
+
+```python Delete Vectors Example
+# Delete specific vectors by ID
+result = client.delete_vectors(
+    namespace_name="my-image-embeddings",
+    ids=["image_001.jpg", "image_002.jpg"]
+)
+print(f"Deletion result: {result}")
+```
+
+## Complete Data Management Example
+
+```python Complete Data Management Workflow
+from moorcheh_sdk import MoorchehClient
+import time
+
+with MoorchehClient() as client:
+    # 1. Create a namespace
+    client.create_namespace("my-data", type="text")
+
+    # 2. Upload documents
+    docs = [
+        {
+            "id": "doc-1",
+            "text": "This is the first document",
+            "category": "tutorial",
+            "author": "John Doe"
+        },
+        {
+            "id": "doc-2",
+            "text": "This is the second document",
+            "category": "guide",
+            "author": "Jane Smith"
+        }
+    ]
+
+    upload_result = client.upload_documents("my-data", docs)
+    print(f"Upload status: {upload_result}")
+
+    # 3. Wait for processing (text documents need time to be embedded)
+    print("Waiting for document processing...")
+    time.sleep(5)
+
+    # 4. Delete specific documents if needed
+    delete_result = client.delete_documents("my-data", ["doc-1"])
+    print(f"Delete result: {delete_result}")
+```
+
+## Document Structure Best Practices
+
+### Required Fields
+- **id**: Unique identifier for the document (string or number)
+- **text**: The main content to be searched (string)
+
+### Optional Metadata
+You can include any additional fields as metadata:
+
+```python Well-Structured Documents
+documents = [
+    {
+        "id": "article-123",
+        "text": "Full article content here...",
+        # Metadata fields
+        "title": "Introduction to Machine Learning",
+        "author": "Dr. Smith",
+        "category": "education",
+        "publish_date": "2024-01-15",
+        "tags": ["ml", "ai", "tutorial"],
+        "difficulty": "beginner"
+    }
+]
+```
+
+### Vector Data Structure
+
+For vector uploads, ensure your vectors match the namespace dimension:
+
+```python Vector Structure
+vectors = [
+    {
+        "id": "embedding-1",
+        "vector": [0.1, 0.2, 0.3, ...],  # Must match namespace dimension
+        # Optional metadata
+        "source": "image_database",
+        "category": "product",
+        "confidence": 0.95
+    }
+]
+```
+
+## Important Notes
+
+<Note>
+**Asynchronous Processing**: Text documents are processed asynchronously. Allow a few seconds after upload before searching.
+</Note>
+
+<Warning>
+**ID Uniqueness**: Document and vector IDs must be unique within their namespace. Uploading with an existing ID will overwrite the previous entry.
+</Warning>
+
+<Tip>
+**Batch Processing**: For large datasets, upload documents in batches of 100-1000 items for optimal performance.
+</Tip>

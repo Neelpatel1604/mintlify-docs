@@ -1,0 +1,109 @@
+---
+title: "Overview"
+description: "Moorcheh Python SDK: Official Reference"
+---
+
+# Moorcheh Python SDK: Official Reference
+
+Welcome to the official reference documentation for the Moorcheh Python SDK. This guide provides everything you need to integrate Moorcheh's powerful semantic search and generative AI capabilities into your Python applications.
+
+## Overview
+
+The Moorcheh Python SDK provides a convenient, Pythonic interface for all of Moorcheh's API endpoints. It is designed to be intuitive and robust, with clear methods, type hinting, and comprehensive error handling.
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card title="Full API Coverage" icon="api">
+    Manage namespaces, ingest data, perform searches, and generate AI answers.
+  </Card>
+  <Card title="Simplified Authentication" icon="key">
+    Automatic handling of API keys via environment variables.
+  </Card>
+  <Card title="Robust Error Handling" icon="shield-check">
+    Custom exceptions for specific API errors, allowing for graceful failure and recovery.
+  </Card>
+  <Card title="Context Management" icon="code">
+    The client is designed to be used as a context manager (with statement) for efficient handling of network resources.
+  </Card>
+</CardGroup>
+
+## Installation
+
+Install the SDK using pip:
+
+```bash Installation
+pip install moorcheh-sdk
+```
+
+## Quick Start
+
+Here's a complete example showing how to use the SDK:
+
+```python Quick Start Example
+import os
+from moorcheh_sdk import MoorchehClient, MoorchehError, ConflictError
+
+# --- 1. Configure Client ---
+# It's recommended to set your API key as an environment variable
+# export MOORCHEH_API_KEY="your-pypi-api-token"
+# If not set, you can pass it directly: MoorchehClient(api_key="...")
+
+try:
+    with MoorchehClient() as client:
+        print("Client initialized.")
+        namespace = "sdk-quickstart-ns"
+
+        # --- 2. Create a Namespace ---
+        print(f"\nCreating namespace: {namespace}...")
+        try:
+            client.create_namespace(namespace_name=namespace, type="text")
+            print("Namespace created successfully.")
+        except ConflictError:
+            print(f"Namespace '{namespace}' already exists. Continuing.")
+
+        # --- 3. Upload Documents ---
+        print("\nUploading documents...")
+        docs = [
+            {"id": "qs-doc-1", "text": "Moorcheh is a semantic search engine designed for speed and accuracy."},
+            {"id": "qs-doc-2", "text": "The Python SDK allows developers to easily integrate Moorcheh's features."}
+        ]
+        client.upload_documents(namespace_name=namespace, documents=docs)
+        print("Documents queued for upload.")
+
+        # Wait a few seconds for async processing
+        import time
+        time.sleep(5)
+
+        # --- 4. Perform a Search ---
+        print("\nPerforming semantic search for 'What is the SDK?'...")
+        search_results = client.search(namespaces=[namespace], query="What is the SDK?")
+        print("Search Results:")
+        print(search_results['results'])
+
+        # --- 5. Get a Generative AI Answer ---
+        print("\nGetting a Generative AI answer...")
+        gen_ai_response = client.get_generative_answer(
+            namespace=namespace,
+            query="In one sentence, what is the purpose of the Python SDK?"
+        )
+        print(f"AI Answer: {gen_ai_response['answer']}")
+
+        # --- 6. Clean Up ---
+        print(f"\nDeleting namespace: {namespace}...")
+        client.delete_namespace(namespace)
+        print("Cleanup complete.")
+
+except MoorchehError as e:
+    print(f"An SDK error occurred: {e}")
+except Exception as e:
+    print(f"An unexpected error occurred: {e}")
+```
+
+## Next Steps
+
+- [Client Initialization](/api-reference/python-sdk/client) - Learn how to configure the MoorchehClient
+- [Namespace Management](/api-reference/python-sdk/namespaces) - Create and manage namespaces
+- [Data Management](/api-reference/python-sdk/data) - Upload and manage your data
+- [Search & AI](/api-reference/python-sdk/search-ai) - Perform searches and get AI answers
+- [Best Practices](/api-reference/python-sdk/best-practices) - Learn best practices and error handling

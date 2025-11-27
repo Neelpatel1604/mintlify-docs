@@ -1,0 +1,373 @@
+---
+title: "Upload Vector Data"
+api: "POST https://api.moorcheh.ai/v1/namespaces/{namespace_name}/vectors"
+description: "Upload pre-computed vector embeddings to a vector namespace for high-performance similarity search."
+contentType: "application/json"
+---
+
+## Overview
+
+Upload pre-computed vector embeddings to a vector namespace for high-performance similarity search. This endpoint is ideal when you have your own embeddings or want to use specific embedding models.
+
+<Info>
+Vectors must match the exact dimension specified when the namespace was created. All vectors in a batch must have the same dimension.
+</Info>
+
+## Authentication
+
+<ParamField header="x-api-Key" type="string" required>
+  Your API key for authentication
+</ParamField>
+
+<ParamField header="Content-Type" type="string" required>
+  Must be `application/json`
+</ParamField>
+
+## Path Parameters
+
+<ParamField path="namespace_name" type="string" required>
+  Name of the vector namespace to upload vectors to
+</ParamField>
+
+## Body Parameters
+
+<ParamField body="vectors" type="array" required>
+  Array of vector objects to upload
+</ParamField>
+
+### Vector Object
+
+<ParamField body="vectors[].id" type="string">
+  Optional unique identifier for the vector. Auto-generated if not provided.
+</ParamField>
+
+<ParamField body="vectors[].vector" type="array" required>
+  Array of numbers representing the vector embedding
+</ParamField>
+
+<ParamField body="vectors[].metadata" type="object">
+  Optional metadata object for filtering and organization
+</ParamField>
+
+<ParamField body="vectors[].text" type="string">
+  Optional original text that generated this vector
+</ParamField>
+
+<RequestExample>
+
+```bash Single Vector
+curl -X POST "https://api.moorcheh.ai/v1/namespaces/my-vectors/vectors" \
+  -H "Content-Type: application/json" \
+  -H "x-api-Key: your-api-key-here" \
+  -d '{
+    "vectors": [
+      {
+        "vector": [0.1, -0.2, 0.3, 0.4, -0.5],
+        "text": "Machine learning algorithms",
+        "metadata": {
+          "source": "openai",
+          "model": "text-embedding-3-small",
+          "category": "tech"
+        }
+      }
+    ]
+  }'
+```
+
+```bash Multiple Vectors
+curl -X POST "https://api.moorcheh.ai/v1/namespaces/my-vectors/vectors" \
+  -H "Content-Type: application/json" \
+  -H "x-api-Key: your-api-key-here" \
+  -d '{
+    "vectors": [
+      {
+        "id": "prod_001",
+        "vector": [0.1, -0.2, 0.3, 0.4],
+        "text": "Wireless bluetooth headphones",
+        "metadata": {
+          "category": "electronics",
+          "price": 99.99,
+          "brand": "TechCorp"
+        }
+      },
+      {
+        "id": "prod_002",
+        "vector": [0.2, 0.1, -0.4, 0.3],
+        "text": "Professional gaming mouse",
+        "metadata": {
+          "category": "electronics",
+          "price": 79.99,
+          "brand": "GameGear"
+        }
+      }
+    ]
+  }'
+```
+
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 201 - Created
+{
+  "status": "success",
+  "message": "2 vectors uploaded successfully to namespace 'product-embeddings'",
+  "upload_id": "upload_vec_1234567890",
+  "namespace_name": "product-embeddings",
+  "vectors_processed": 2,
+  "processing_status": "completed",
+  "uploaded_vectors": [
+    {
+      "id": "prod_001",
+      "status": "completed",
+      "dimension": 4,
+      "created_at": "2024-01-15T10:30:00Z"
+    },
+    {
+      "id": "prod_002",
+      "status": "completed",
+      "dimension": 4,
+      "created_at": "2024-01-15T10:30:00Z"
+    }
+  ]
+}
+```
+
+```json 207 - Multi-Status
+{
+  "status": "partial_success",
+  "message": "1 out of 2 vectors uploaded successfully. 1 vector failed validation.",
+  "upload_id": "upload_vec_1234567891",
+  "namespace_name": "my-embeddings",
+  "vectors_processed": 1,
+  "vectors_failed": 1,
+  "uploaded_vectors": [
+    {
+      "id": "vec_001",
+      "status": "completed",
+      "dimension": 1536
+    }
+  ],
+  "failed_vectors": [
+    {
+      "id": "vec_002",
+      "error": "Dimension mismatch",
+      "message": "Vector dimension (768) does not match namespace dimension (1536)",
+      "expected_dimension": 1536,
+      "provided_dimension": 768
+    }
+  ]
+}
+```
+
+```json 400 - Bad Request
+{
+  "error": "Invalid request parameters",
+  "message": "Vector dimension mismatch. All vectors must have dimension 1536.",
+  "details": {
+    "namespace_dimension": 1536,
+    "provided_dimensions": [1536, 768, 1536],
+    "invalid_vectors": ["vectors[1]"]
+  }
+}
+```
+
+```json 401 - Unauthorized
+{
+  "error": "Unauthorized",
+  "message": "Invalid or missing API key. Please check your x-api-Key header.",
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
+```json 403 - Forbidden
+{
+  "error": "Forbidden",
+  "message": "Vector upload limit reached for your current tier. Upgrade your plan or delete unused vectors.",
+  "details": {
+    "current_count": 49950,
+    "tier_limit": 50000,
+    "tier": "professional",
+    "vectors_attempted": 100
+  }
+}
+```
+
+```json 404 - Not Found
+{
+  "error": "Namespace not found",
+  "message": "No vector namespace found with the name 'my-embeddings' in your account.",
+  "namespace_name": "my-embeddings",
+  "suggestion": "Create a vector namespace first or check the namespace name."
+}
+```
+
+```json 500 - Server Error
+{
+  "error": "Internal server error",
+  "message": "An unexpected error occurred while uploading vectors. Please try again later.",
+  "timestamp": "2024-01-15T10:30:00Z",
+  "request_id": "req_1234567890"
+}
+```
+
+</ResponseExample>
+
+## Response Fields
+
+### Success Response
+
+<ResponseField name="status" type="string">
+  Status of the upload ("success" for successful uploads)
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Human-readable confirmation message
+</ResponseField>
+
+<ResponseField name="upload_id" type="string">
+  Unique identifier for tracking this upload batch
+</ResponseField>
+
+<ResponseField name="namespace_name" type="string">
+  Name of the namespace where vectors were uploaded
+</ResponseField>
+
+<ResponseField name="vectors_processed" type="number">
+  Number of vectors successfully processed
+</ResponseField>
+
+<ResponseField name="processing_status" type="string">
+  Current status: "completed" (vectors process immediately)
+</ResponseField>
+
+<ResponseField name="uploaded_vectors" type="array">
+  Array of uploaded vector status objects
+</ResponseField>
+
+### Vector Status Object
+
+<ResponseField name="id" type="string">
+  Vector identifier
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Processing status: "completed" or "failed"
+</ResponseField>
+
+<ResponseField name="dimension" type="number">
+  Dimension of the uploaded vector
+</ResponseField>
+
+<ResponseField name="created_at" type="string">
+  ISO 8601 timestamp when vector was uploaded
+</ResponseField>
+
+## Vector Requirements
+
+<CardGroup cols={2}>
+  <Card title="Dimension Match" icon="ruler">
+    **Must match namespace dimension exactly**
+    Common: 384, 768, 1536, 3072
+  </Card>
+  <Card title="Value Range" icon="chart-line">
+    **Normalized vectors preferred**
+    Range: -1.0 to 1.0 (typical)
+  </Card>
+  <Card title="Batch Size" icon="layer-group">
+    **Max:** 1000 vectors per request
+    **Recommended:** 100-500 for optimal performance
+  </Card>
+  <Card title="Precision" icon="bullseye">
+    **Float32 precision**
+    Up to 7 decimal places
+  </Card>
+</CardGroup>
+
+## Dimension Guidelines
+
+<AccordionGroup>
+  <Accordion title="Common Embedding Models">
+    **OpenAI text-embedding-3-large**: 3072 dimensions
+    **OpenAI text-embedding-3-small**: 1536 dimensions
+    **OpenAI text-embedding-ada-002**: 1536 dimensions
+    **Sentence-BERT**: 384 or 768 dimensions
+    **Universal Sentence Encoder**: 512 dimensions
+  </Accordion>
+
+  <Accordion title="Custom Embeddings">
+    - Ensure consistent preprocessing across all vectors
+    - Normalize vectors for better similarity calculations
+    - Use the same model/settings for all vectors in a namespace
+    - Document your embedding generation process
+  </Accordion>
+
+  <Accordion title="Quality Considerations">
+    - Higher dimensions generally capture more semantic information
+    - Ensure vectors represent meaningful semantic content
+    - Consider domain-specific fine-tuned models for specialized content
+    - Test similarity search quality with sample queries
+  </Accordion>
+</AccordionGroup>
+
+## Processing Pipeline
+
+<Steps>
+  <Step title="Dimension Validation">
+    Verify all vectors match the namespace dimension
+  </Step>
+  <Step title="Format Validation">
+    Check vector format and numeric precision
+  </Step>
+  <Step title="Index Insertion">
+    Add vectors to high-performance similarity search index
+  </Step>
+  <Step title="Metadata Storage">
+    Store associated metadata and text for retrieval
+  </Step>
+  <Step title="Immediate Availability">
+    Vectors are immediately available for search
+  </Step>
+</Steps>
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Vector Quality">
+    - Use high-quality, domain-appropriate embedding models
+    - Normalize vectors to unit length for cosine similarity
+    - Ensure consistent preprocessing and tokenization
+    - Test with sample searches before large uploads
+  </Accordion>
+
+  <Accordion title="Batch Optimization">
+    - Upload 100-500 vectors per request for best performance
+    - Use meaningful IDs for easier management and updates
+    - Include original text when possible for result display
+    - Group related vectors in single uploads
+  </Accordion>
+
+  <Accordion title="Metadata Strategy">
+    - Include filterable metadata for refined searches
+    - Store embedding model information for reference
+    - Add timestamps and source information
+    - Consider access control metadata
+  </Accordion>
+</AccordionGroup>
+
+## Use Cases
+
+- **Semantic Search**: Build powerful semantic search over documents
+- **Recommendation Systems**: Find similar products, content, or users
+- **Content Discovery**: Enable "more like this" functionality
+- **Duplicate Detection**: Identify similar or duplicate content
+- **Clustering & Analysis**: Group similar items for analysis
+- **RAG Applications**: Retrieval-augmented generation for AI applications
+
+## Related Endpoints
+
+- [Search](/api-reference/search/query) - Search uploaded vector embeddings
+- [Get Documents](/api-reference/data/get-documents) - Retrieve vector information
+- [Delete Data](/api-reference/data/delete) - Remove uploaded vectors
+- [Create Namespace](/api-reference/namespaces/create) - Create vector namespaces for uploads

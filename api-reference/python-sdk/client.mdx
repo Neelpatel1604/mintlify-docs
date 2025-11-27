@@ -1,0 +1,107 @@
+---
+title: "Client Initialization"
+description: "Learn how to initialize and configure the MoorchehClient"
+---
+
+# Client Initialization
+
+The MoorchehClient is the main entry point to the SDK.
+
+## Parameters
+
+<ParamField query="api_key" type="Optional[str]" required>
+  Your API key. If None, reads from MOORCHEH_API_KEY environment variable.
+</ParamField>
+
+<ParamField query="base_url" type="Optional[str]">
+  The API base URL. If None, reads from MOORCHEH_BASE_URL or uses the production default.
+</ParamField>
+
+<ParamField query="timeout" type="Optional[float]" default="30.0">
+  Request timeout in seconds for all API calls. Defaults to 30.0.
+</ParamField>
+
+## Usage
+
+The recommended way to use the client is with a context manager:
+
+```python Basic Usage
+from moorcheh_sdk import MoorchehClient
+
+# Recommended: Use as a context manager
+with MoorchehClient() as client:
+    # ... your code
+```
+
+## Authentication Methods
+
+### Environment Variable (Recommended)
+
+```bash Set Environment Variable
+export MOORCHEH_API_KEY="your-api-key-here"
+```
+
+```python Use Environment Variable
+from moorcheh_sdk import MoorchehClient
+
+# API key will be read from environment variable
+with MoorchehClient() as client:
+    # Client is ready to use
+    pass
+```
+
+### Direct API Key
+
+```python Direct API Key
+from moorcheh_sdk import MoorchehClient
+
+# Pass API key directly (less secure)
+with MoorchehClient(api_key="your-api-key-here") as client:
+    # Client is ready to use
+    pass
+```
+
+### Custom Configuration
+
+```python Custom Configuration
+from moorcheh_sdk import MoorchehClient
+
+# Custom base URL and timeout
+with MoorchehClient(
+    api_key="your-api-key-here",
+    base_url="https://api.custom-domain.com/v1",
+    timeout=60.0
+) as client:
+    # Client is ready to use
+    pass
+```
+
+## Context Manager Benefits
+
+Using the client as a context manager ensures:
+
+- Proper cleanup of network resources
+- Automatic connection pooling
+- Exception handling
+- Resource management
+
+<Warning>
+Always use the client as a context manager with the `with` statement to ensure proper resource cleanup.
+</Warning>
+
+## Error Handling
+
+The client will raise appropriate exceptions for various error conditions:
+
+```python Error Handling
+from moorcheh_sdk import MoorchehClient, AuthenticationError
+
+try:
+    with MoorchehClient() as client:
+        # Your API calls here
+        pass
+except AuthenticationError:
+    print("Invalid API key")
+except Exception as e:
+    print(f"Unexpected error: {e}")
+```

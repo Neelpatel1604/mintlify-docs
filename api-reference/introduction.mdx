@@ -1,33 +1,226 @@
 ---
-title: 'Introduction'
-description: 'Example section for showcasing API endpoints'
+title: "Introduction"
+description: "Getting started with the Moorcheh API"
 ---
 
-<Note>
-  If you're not looking to build API reference documentation, you can delete
-  this section by removing the api-reference folder.
-</Note>
+## Welcome to Moorcheh API
 
-## Welcome
+The Moorcheh API provides powerful vector and text search capabilities through a simple and intuitive REST API. Our API allows you to create namespaces, upload text or vector data, and perform semantic searches with high accuracy and low latency.
 
-There are two ways to build API documentation: [OpenAPI](https://mintlify.com/docs/api-playground/openapi/setup) and [MDX components](https://mintlify.com/docs/api-playground/mdx/configuration). For the starter kit, we are using the following OpenAPI specification.
+## Base URL
 
-<Card
-  title="Plant Store Endpoints"
-  icon="leaf"
-  href="https://github.com/mintlify/starter/blob/main/api-reference/openapi.json"
->
-  View the OpenAPI specification file
-</Card>
+All API endpoints are accessible at:
+
+```
+https://api.moorcheh.ai/v1
+```
 
 ## Authentication
 
-All API endpoints are authenticated using Bearer tokens and picked up from the specification file.
+The Moorcheh API uses API key authentication. You must include your API key in the `x-api-Key` header with every request.
+
+<Note>
+The header name is `x-api-Key` with a capital K. This is case-sensitive.
+</Note>
+
+### Get Your API Key
+
+<Steps>
+  <Step title="Sign Up">
+    Create your account at [console.moorcheh.ai](https://console.moorcheh.ai)
+  </Step>
+  <Step title="Generate API Key">
+    Navigate to the API Keys section and generate a new key
+  </Step>
+  <Step title="Store Securely">
+    Copy and securely store your API key
+  </Step>
+</Steps>
+
+### Authentication Header
+
+```bash
+x-api-Key: your-api-key-here
+```
+
+### Example Request
+
+<CodeGroup>
+```bash cURL
+curl -X GET "https://api.moorcheh.ai/v1/namespaces" \
+  -H "x-api-Key: your-api-key-here" \
+  -H "Content-Type: application/json"
+```
+
+```python Python
+import requests
+
+headers = {
+    'x-api-Key': 'your-api-key-here',
+    'Content-Type': 'application/json'
+}
+
+response = requests.get(
+    'https://api.moorcheh.ai/v1/namespaces',
+    headers=headers
+)
+```
+
+```javascript JavaScript
+const headers = {
+  'x-api-Key': 'your-api-key-here',
+  'Content-Type': 'application/json'
+};
+
+fetch('https://api.moorcheh.ai/v1/namespaces', {
+  method: 'GET',
+  headers: headers
+});
+```
+</CodeGroup>
+
+## API Endpoints
+
+<CardGroup cols={2}>
+  <Card title="Namespace Management" icon="folder" href="/api-reference/namespaces/create">
+    Create, list, and delete namespaces
+  </Card>
+  <Card title="Search & Discovery" icon="magnifying-glass" href="/api-reference/search/query">
+    Perform semantic search across namespaces
+  </Card>
+  <Card title="AI Generation" icon="sparkles" href="/api-reference/ai/generate">
+    Generate AI-powered answers from your data
+  </Card>
+  <Card title="Data Operations" icon="database" href="/api-reference/data/upload-text">
+    Upload and manage text or vector data
+  </Card>
+</CardGroup>
+
+## Basic Workflow
+
+<Steps>
+  <Step title="Authenticate">
+    Include your API key in the `x-api-Key` header
+  </Step>
+  <Step title="Create a Namespace">
+    Create a namespace to organize your data (text or vector type)
+  </Step>
+  <Step title="Upload Data">
+    Upload text documents or vector embeddings to your namespace
+  </Step>
+  <Step title="Search">
+    Perform semantic search to retrieve relevant data
+  </Step>
+  <Step title="Generate Answers">
+    Use AI models to generate contextual answers from your data
+  </Step>
+</Steps>
+
+## Error Responses
+
+The API uses standard HTTP status codes:
+
+| Status Code | Meaning | Description |
+|-------------|---------|-------------|
+| 200 | OK | Request succeeded |
+| 201 | Created | Resource created successfully |
+| 202 | Accepted | Request accepted for processing |
+| 400 | Bad Request | Invalid request parameters |
+| 401 | Unauthorized | Invalid or missing API key |
+| 403 | Forbidden | Insufficient permissions |
+| 404 | Not Found | Resource not found |
+| 409 | Conflict | Resource already exists |
+| 413 | Payload Too Large | File exceeds size limit (10MB) |
+| 429 | Too Many Requests | Rate limit exceeded |
+| 500 | Internal Server Error | Server-side error |
+
+### Error Response Format
 
 ```json
-"security": [
-  {
-    "bearerAuth": []
-  }
-]
+{
+  "error": "Error description",
+  "message": "Detailed error message"
+}
 ```
+
+## Security Best Practices
+
+<AccordionGroup>
+  <Accordion title="Store API Keys Securely">
+    - Use environment variables instead of hardcoding
+    - Never commit API keys to version control
+    - Use secret management services in production
+    
+    ```bash
+    # Good: Use environment variables
+    export MOORCHEH_API_KEY="your-api-key"
+    ```
+  </Accordion>
+
+  <Accordion title="Use HTTPS Only">
+    All API requests must use HTTPS. HTTP requests will be rejected.
+  </Accordion>
+
+  <Accordion title="Rotate Keys Regularly">
+    - Generate new API keys periodically
+    - Revoke old keys after rotation
+    - Monitor key usage in your console
+  </Accordion>
+
+  <Accordion title="Implement Rate Limiting">
+    - Add exponential backoff for retries
+    - Monitor API usage
+    - Implement client-side throttling
+  </Accordion>
+
+  <Accordion title="Validate Inputs">
+    - Sanitize user inputs before searching
+    - Validate metadata formats
+    - Check file types before upload
+  </Accordion>
+</AccordionGroup>
+
+## Rate Limits
+
+API keys are subject to rate limiting based on your subscription tier. If you exceed your rate limit, you'll receive a `429 Too Many Requests` response.
+
+<Note>
+Contact support@moorcheh.ai for information about rate limits and enterprise plans.
+</Note>
+
+## SDKs and Integrations
+
+<CardGroup cols={3}>
+  <Card title="Python SDK" icon="python" href="/api-reference/python-sdk/overview">
+    Official Python SDK with full API coverage
+  </Card>
+  <Card title="LangChain" icon="link" href="/integrations/langchain/overview">
+    Vector store integration for LangChain
+  </Card>
+  <Card title="LlamaIndex" icon="database" href="/integrations/llamaindex/overview">
+    Native LlamaIndex vector store support
+  </Card>
+  <Card title="MCP Server" icon="server" href="/integrations/mcp/overview">
+    Model Context Protocol integration
+  </Card>
+  <Card title="Chat Boilerplate" icon="messages" href="/integrations/chat-boilerplate/overview">
+    Ready-to-use chat application
+  </Card>
+</CardGroup>
+
+## Need Help?
+
+<CardGroup cols={2}>
+  <Card title="Quick Start" icon="rocket" href="/quickstart">
+    Get started in 5 minutes
+  </Card>
+  <Card title="Guides" icon="book" href="/guides/namespaces">
+    Learn core concepts
+  </Card>
+  <Card title="Support" icon="headset" href="mailto:support@moorcheh.ai">
+    Contact our team
+  </Card>
+  <Card title="GitHub" icon="github" href="https://github.com/moorcheh-ai">
+    View open-source SDKs
+  </Card>
+</CardGroup>

@@ -1,0 +1,232 @@
+---
+title: "AI Answer Generation"
+description: "Generate contextual AI-powered answers from your data"
+---
+
+## Overview
+
+Generate AI-powered answers to questions using your uploaded data as context. Moorcheh supports 8 state-of-the-art AI models for intelligent answer generation.
+
+<Info>
+The Answer API supports two modes: **Search Mode** (with namespace) and **Direct AI Mode** (empty namespace for direct model calls).
+</Info>
+
+## Supported AI Models
+
+| Model ID | Provider | Description |
+|----------|----------|-------------|
+| `anthropic.claude-sonnet-4-20250514-v1:0` | Anthropic | Hybrid reasoning, efficient code generation |
+| `anthropic.claude-sonnet-4-5-20250929-v1:0` | Anthropic | Latest Claude with agentic search |
+| `meta.llama4-maverick-17b-instruct-v1:0` | Meta | 1M token context, function calling |
+| `meta.llama3-3-70b-instruct-v1:0` | Meta | Advanced reasoning capabilities |
+| `amazon.nova-pro-v1:0` | Amazon | 300K context, complex reasoning |
+| `deepseek.r1-v1:0` | DeepSeek | Advanced reasoning and code generation |
+| `openai.gpt-oss-120b-1:0` | OpenAI | Hybrid reasoning, research |
+| `qwen.qwen3-32b-v1:0` | Qwen | Text and code generation |
+
+## Basic Usage
+
+<CodeGroup>
+```python Python SDK
+from moorcheh_sdk import MoorchehClient
+
+client = MoorchehClient(api_key="your-api-key")
+
+# Generate answer from your data
+answer = client.get_answer(
+    namespace="my-documents",
+    query="What is Moorcheh?",
+    ai_model="anthropic.claude-sonnet-4-20250514-v1:0"
+)
+
+print(answer["answer"])
+```
+
+```bash cURL
+curl -X POST "https://api.moorcheh.ai/v1/answer" \
+  -H "Content-Type: application/json" \
+  -H "x-api-Key: your-api-key" \
+  -d '{
+    "namespace": "my-documents",
+    "query": "What is Moorcheh?",
+    "ai_model": "anthropic.claude-sonnet-4-20250514-v1:0"
+  }'
+```
+</CodeGroup>
+
+## Search Mode vs Direct AI Mode
+
+<Tabs>
+  <Tab title="Search Mode">
+    ### Search Mode (with namespace)
+
+    When you provide a namespace, the API searches your data for relevant context and uses it to generate contextual answers.
+
+    ```python
+    # Answer based on your data
+    answer = client.get_answer(
+        namespace="my-documents",
+        query="What are the main features?",
+        ai_model="anthropic.claude-sonnet-4-20250514-v1:0",
+        top_k=5  # Number of documents to consider
+    )
+    ```
+
+    **Best for:**
+    - Q&A over your documents
+    - Knowledge base queries
+    - Context-aware responses
+  </Tab>
+
+  <Tab title="Direct AI Mode">
+    ### Direct AI Mode (empty namespace)
+
+    Pass an empty string `""` as namespace to make direct calls to the AI model without searching your data.
+
+    ```python
+    # Direct AI model call
+    answer = client.get_answer(
+        namespace="",  # Empty for direct mode
+        query="Explain quantum computing",
+        ai_model="anthropic.claude-sonnet-4-20250514-v1:0"
+    )
+    ```
+
+    **Best for:**
+    - General knowledge questions
+    - Code generation
+    - Content creation
+  </Tab>
+</Tabs>
+
+## Advanced Parameters
+
+### Temperature Control
+
+Control response creativity (0.0 - 2.0):
+
+```python
+# More deterministic (lower temperature)
+answer = client.get_answer(
+    namespace="my-documents",
+    query="List the API endpoints",
+    ai_model="anthropic.claude-sonnet-4-20250514-v1:0",
+    temperature=0.1
+)
+
+# More creative (higher temperature)
+answer = client.get_answer(
+    namespace="my-documents",
+    query="Write a blog post about our features",
+    ai_model="anthropic.claude-sonnet-4-20250514-v1:0",
+    temperature=0.9
+)
+```
+
+### Custom Prompts
+
+Add custom instructions for the AI:
+
+```python
+answer = client.get_answer(
+    namespace="my-documents",
+    query="Explain our pricing",
+    ai_model="anthropic.claude-sonnet-4-20250514-v1:0",
+    headerPrompt="You are a helpful sales assistant. Be concise and friendly.",
+    footerPrompt="Always end with a call to action."
+)
+```
+
+### Chat History
+
+Maintain conversation context:
+
+```python
+answer = client.get_answer(
+    namespace="my-documents",
+    query="What about the advanced features?",
+    ai_model="anthropic.claude-sonnet-4-20250514-v1:0",
+    chatHistory=[
+        {"role": "user", "content": "What features do you offer?"},
+        {"role": "assistant", "content": "We offer semantic search, vector storage..."}
+    ]
+)
+```
+
+## Response Format
+
+```json
+{
+  "answer": "Moorcheh is a lightning-fast semantic search engine...",
+  "sources": [
+    {
+      "id": "doc-123",
+      "score": 0.95,
+      "text": "Source content..."
+    }
+  ]
+}
+```
+
+## Model Selection Guide
+
+<CardGroup cols={2}>
+  <Card title="General Purpose" icon="star">
+    **Claude Sonnet 4** - Best balance of speed and quality
+  </Card>
+  <Card title="Advanced Reasoning" icon="brain">
+    **Claude Sonnet 4.5** - Latest model with agentic capabilities
+  </Card>
+  <Card title="Long Context" icon="file">
+    **Llama 4 Maverick** - 1M token context window
+  </Card>
+  <Card title="Code Generation" icon="code">
+    **DeepSeek R1** - Specialized for coding tasks
+  </Card>
+</CardGroup>
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Choose the right model">
+    - Use Claude Sonnet 4 for general queries
+    - Use DeepSeek R1 for code-related questions
+    - Use Llama 4 Maverick for very long documents
+  </Accordion>
+
+  <Accordion title="Optimize top_k">
+    - Use 3-5 documents for focused answers
+    - Use 8-10 documents for comprehensive responses
+    - Higher values may include irrelevant context
+  </Accordion>
+
+  <Accordion title="Set appropriate temperature">
+    - 0.1-0.3 for factual, deterministic answers
+    - 0.7 for balanced responses (default)
+    - 0.9-1.0 for creative content generation
+  </Accordion>
+
+  <Accordion title="Use custom prompts wisely">
+    - Add role context in headerPrompt
+    - Specify output format requirements
+    - Keep prompts concise and clear
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Search API" icon="magnifying-glass" href="/guides/search">
+    Learn about semantic search
+  </Card>
+  <Card title="Upload Data" icon="upload" href="/api-reference/data/upload-text">
+    Add documents to your namespace
+  </Card>
+  <Card title="API Reference" icon="code" href="/api-reference/ai/generate">
+    Complete AI generation API docs
+  </Card>
+  <Card title="Examples" icon="rocket" href="/guides/use-cases">
+    See real-world examples
+  </Card>
+</CardGroup>
+

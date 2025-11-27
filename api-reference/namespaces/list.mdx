@@ -1,0 +1,157 @@
+---
+title: "List Namespaces"
+api: "GET https://api.moorcheh.ai/v1/namespaces"
+description: "Retrieve a list of all namespaces in your account with their details and statistics."
+contentType: "application/json"
+---
+
+## Overview
+
+Retrieve a comprehensive list of all namespaces in your account, including their metadata, document counts, and usage statistics. This endpoint provides essential information for namespace management and monitoring.
+
+<Info>
+The response includes both text and vector namespaces, with type-specific metadata for each.
+</Info>
+
+## Authentication
+
+<ParamField header="x-api-Key" type="string" required>
+  Your API key for authentication
+</ParamField>
+
+<ParamField header="Content-Type" type="string" required>
+  Must be `application/json`
+</ParamField>
+
+## Query Parameters
+
+This endpoint does not accept query parameters. All namespaces for the authenticated user are returned.
+
+<RequestExample>
+
+```bash All Namespaces
+curl -X GET "https://api.moorcheh.ai/v1/namespaces" \
+  -H "x-api-Key: your-api-key-here"
+```
+
+
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200 - Success
+{
+  "namespaces": [
+    {
+      "namespace_name": "my_documents",
+      "type": "text",
+      "vector_dimension": null,
+      "itemCount": 1247,
+      "createdAt": "2024-01-15T10:30:00.000Z"
+    },
+    {
+      "namespace_name": "product_embeddings",
+      "type": "vector",
+      "vector_dimension": 1536,
+      "itemCount": 5683,
+      "createdAt": "2024-01-20T14:22:15.000Z"
+    },
+    {
+      "namespace_name": "customer_support",
+      "type": "text",
+      "vector_dimension": null,
+      "itemCount": 892,
+      "createdAt": "2024-02-01T09:15:30.000Z"
+    }
+  ]
+}
+```
+
+```json 401 - Unauthorized (Missing API Key)
+{
+  "message": "Unauthorized: Missing API key"
+}
+```
+
+```json 401 - Unauthorized (Invalid API Key)
+{
+  "message": "Unauthorized: API key verification failed - Invalid API key ID"
+}
+```
+
+```json 401 - Unauthorized (Disabled API Key)
+{
+  "message": "Unauthorized: API key is disabled"
+}
+```
+
+```json 403 - Forbidden
+{
+  "status": "failure",
+  "message": "Forbidden"
+}
+```
+
+```json 429 - Rate Limited
+{
+  "status": "failure",
+  "message": "API request limit reached for Professional plan (1000000 requests). Current usage: 1000000. Please upgrade your subscription for higher limits.",
+  "current_usage": 1000000,
+  "limit": 1000000
+}
+```
+
+```json 429 - Subscription Expired
+{
+  "status": "failure",
+  "message": "Your Community subscription expired on 8/15/2025. Please renew your subscription to continue using the service."
+}
+```
+
+```json 500 - Server Error
+{
+  "status": "failure",
+  "message": "Internal Server Error fetching namespaces."
+}
+```
+
+</ResponseExample>
+
+## Response Fields
+
+### Namespace Object
+
+<ResponseField name="namespace_name" type="string">
+  Unique name of the namespace
+</ResponseField>
+
+<ResponseField name="type" type="string">
+  Namespace type: "text" or "vector"
+</ResponseField>
+
+<ResponseField name="vector_dimension" type="number|null">
+  Vector dimension (null for text namespaces)
+</ResponseField>
+
+<ResponseField name="itemCount" type="number">
+  Total number of items in the namespace
+</ResponseField>
+
+<ResponseField name="createdAt" type="string">
+  ISO 8601 timestamp of creation
+</ResponseField>
+
+## Use Cases
+
+- **Dashboard Display**: Show namespace overview with usage statistics
+- **Data Management**: Monitor storage usage and document counts
+- **Namespace Selection**: Populate dropdowns for namespace selection in applications
+- **Usage Analytics**: Track namespace growth and activity over time
+- **Resource Planning**: Understand storage and document distribution across namespaces
+
+## Related Endpoints
+
+- [Create Namespace](/api-reference/namespaces/create) - Create a new namespace
+- [Delete Namespace](/api-reference/namespaces/delete) - Remove a namespace
+- [Upload Data](/api-reference/data/upload-text) - Add data to namespaces

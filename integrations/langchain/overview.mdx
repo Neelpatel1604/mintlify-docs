@@ -1,0 +1,413 @@
+---
+title: "LangChain Integration"
+description: "Lightning-fast semantic search engine and vector store using Maximally Informative Binarization (MIB) and Information-Theoretic Score (ITS)"
+---
+
+## What is Moorcheh?
+
+[Moorcheh](https://www.moorcheh.ai/) is a lightning-fast semantic search engine and vector store. Instead of using simple distance metrics like L2 or Cosine, Moorcheh uses Maximally Informative Binarization (MIB) and Information-Theoretic Score (ITS) to retrieve accurate document chunks.
+
+The following tutorial will allow you to use Moorcheh and LangChain to upload and store text documents and vector embeddings as well as retrieve relevant chunks for all of your queries.
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card
+    title="MIB Technology"
+    icon="brain"
+  >
+    Uses Maximally Informative Binarization for superior search accuracy
+  </Card>
+  <Card
+    title="ITS Scoring"
+    icon="chart-line"
+  >
+    Information-Theoretic Score provides better relevance ranking
+  </Card>
+  <Card
+    title="LangChain Integration"
+    icon="link"
+  >
+    Seamless integration with LangChain ecosystem
+  </Card>
+  <Card
+    title="Lightning Fast"
+    icon="bolt"
+  >
+    Optimized for speed and performance
+  </Card>
+</CardGroup>
+
+## Setup
+
+First, install the necessary package:
+
+```bash
+pip install langchain-moorcheh
+```
+
+## Initialization
+
+Get started with Moorcheh
+
+<Steps>
+  <Step title="Sign Up">
+    Sign up or log in at the [Moorcheh Console](https://console.moorcheh.ai/)
+  </Step>
+  <Step title="Generate API Key">
+    Go to the "API Keys" tab and generate an API key
+  </Step>
+  <Step title="Set Environment Variable">
+    Save the key as an environment variable named `MOORCHEH_API_KEY`
+  </Step>
+  <Step title="Create Namespace">
+    In the Console, open the "Namespaces" tab and click "Create namespace"; or initialize it programmatically
+  </Step>
+  <Step title="Start Using">
+    Use your API key to create namespaces, upload documents, and retrieve answers
+  </Step>
+</Steps>
+
+<Info>
+For more information about the Moorcheh SDK functions, see the [GitHub repository](https://github.com/moorcheh-ai/moorcheh-python-sdk).
+</Info>
+
+## Importing Packages
+
+Import the required packages:
+
+```python
+from langchain_moorcheh import MoorchehVectorStore
+from moorcheh_sdk import MoorchehClient
+
+import logging
+import os
+from uuid import uuid4
+import asyncio
+from typing import Any, List, Optional, Literal, Tuple, Type, TypeVar, Sequence
+from langchain_core.documents import Document
+from langchain_core.embeddings import Embeddings
+from langchain_core.vectorstores import VectorStore
+from google.colab import userdata
+```
+
+## Code Setup
+
+Set your Moorcheh API Key in your environment variables:
+
+```python
+MOORCHEH_API_KEY = os.environ['MOORCHEH_API_KEY']
+```
+
+Set up your namespace name, type, and create the vector store:
+
+```python
+namespace = "your_namespace_name"
+namespace_type = "text" # or vector
+store = MoorchehVectorStore(
+            api_key=MOORCHEH_API_KEY,
+            namespace=namespace,
+            namespace_type=namespace_type
+        )
+```
+
+## Adding Documents
+
+Create and add documents to your vector store:
+
+```python
+document_1 = Document(
+    page_content="Brewed a fresh cup of Ethiopian coffee and paired it with a warm croissant.",
+    metadata={"source": "blog"},
+)
+
+document_2 = Document(
+    page_content="Tomorrow's weather will be sunny with light winds, reaching a high of 78°F.",
+    metadata={"source": "news"},
+)
+
+document_3 = Document(
+    page_content="Experimenting with LangChain for an AI-powered note-taking assistant!",
+    metadata={"source": "tweet"},
+)
+
+document_4 = Document(
+    page_content="Local bakery donates 500 loaves of bread to the community food bank.",
+    metadata={"source": "news"},
+)
+
+document_5 = Document(
+    page_content="That concert last night was absolutely unforgettable—what a performance!",
+    metadata={"source": "tweet"},
+)
+
+document_6 = Document(
+    page_content="Check out our latest article: 5 ways to boost productivity while working from home.",
+    metadata={"source": "website"},
+)
+
+document_7 = Document(
+    page_content="The ultimate guide to mastering homemade pizza dough.",
+    metadata={"source": "website"},
+)
+
+document_8 = Document(
+    page_content="LangGraph just made multi-agent workflows way easier—seriously impressive!",
+    metadata={"source": "tweet"},
+)
+
+document_9 = Document(
+    page_content="Oil prices rose 3% today after unexpected supply cuts from major exporters.",
+    metadata={"source": "news"},
+)
+
+document_10 = Document(
+    page_content="I really hope this post doesn't vanish into the digital void…",
+    metadata={"source": "tweet"},
+)
+
+documents = [
+    document_1,
+    document_2,
+    document_3,
+    document_4,
+    document_5,
+    document_6,
+    document_7,
+    document_8,
+    document_9,
+    document_10,
+]
+
+uuids = [str(uuid4()) for _ in range(len(documents))]
+
+store.add_documents(documents=documents, ids=uuids)
+```
+
+## Delete Documents
+
+Remove documents from your vector store:
+
+```python
+store.delete(ids=["chunk_id_here"])
+```
+
+## Query Engine
+
+Once your namespace has been created and you have uploaded documents into it, you can ask queries about the documents directly through the vector store. Set the query and LLM you would like to answer your query.
+
+```python
+query = "Give me a brief summary of the provided documents"
+answer = store.generative_answer(query, ai_model = "anthropic.claude-3-7-sonnet-20250219-v1:0")
+print(answer)
+```
+
+<Info>
+For more information on supported LLMs, please visit our [Github page](https://github.com/moorcheh-ai/moorcheh-python-sdk).
+</Info>
+
+## Advanced Usage
+
+### Custom Embeddings
+
+You can use custom embeddings with Moorcheh:
+
+```python
+from langchain.embeddings import OpenAIEmbeddings
+
+embeddings = OpenAIEmbeddings()
+store = MoorchehVectorStore(
+    api_key=MOORCHEH_API_KEY,
+    namespace=namespace,
+    namespace_type=namespace_type,
+    embedding=embeddings
+)
+```
+
+### Search with Similarity
+
+Search for similar documents:
+
+```python
+# Search for similar documents
+results = store.similarity_search("coffee and breakfast", k=3)
+for doc in results:
+    print(doc.page_content)
+    print(doc.metadata)
+    print("---")
+```
+
+### Search with Score
+
+Get similarity scores along with results:
+
+```python
+# Search with scores
+results = store.similarity_search_with_score("weather forecast", k=3)
+for doc, score in results:
+    print(f"Score: {score}")
+    print(f"Content: {doc.page_content}")
+    print("---")
+```
+
+## Configuration Options
+
+### Namespace Types
+
+Moorcheh supports two namespace types:
+
+<CardGroup cols={2}>
+  <Card
+    title="Text Namespace"
+    icon="file-text"
+  >
+    Store and search text documents with automatic embedding generation
+  </Card>
+  <Card
+    title="Vector Namespace"
+    icon="vector-square"
+  >
+    Store pre-computed vector embeddings for custom use cases
+  </Card>
+</CardGroup>
+
+### AI Models
+
+Supported AI models for generative answers:
+
+- `anthropic.claude-sonnet-4-20250514-v1:0` - Claude Sonnet 4
+- `anthropic.claude-sonnet-4-5-20250929-v1:0` - Claude Sonnet 4.5
+- `meta.llama4-maverick-17b-instruct-v1:0` - Llama 4 Maverick 17B
+- `meta.llama3-3-70b-instruct-v1:0` - Llama 3.3 70B
+- `amazon.nova-pro-v1:0` - Amazon Nova Pro
+- `deepseek.r1-v1:0` - DeepSeek R1
+- `openai.gpt-oss-120b-1:0` - OpenAI GPT OSS 120B
+- `qwen.qwen3-32b-v1:0` - Qwen 3 32B
+
+## Best Practices
+
+### Document Preparation
+
+<Steps>
+  <Step title="Clean Your Data">
+    Remove unnecessary whitespace and format text consistently
+  </Step>
+  <Step title="Add Metadata">
+    Include relevant metadata for better filtering and organization
+  </Step>
+  <Step title="Chunk Appropriately">
+    Split large documents into meaningful chunks
+  </Step>
+  <Step title="Use Unique IDs">
+    Generate unique identifiers for each document
+  </Step>
+</Steps>
+
+### Performance Optimization
+
+- Use appropriate chunk sizes (typically 500-1000 characters)
+- Batch document uploads for better performance
+- Monitor your API usage and rate limits
+- Use caching for frequently accessed data
+
+### Error Handling
+
+```python
+try:
+    store.add_documents(documents=documents, ids=uuids)
+    print("Documents added successfully")
+except Exception as e:
+    print(f"Error adding documents: {e}")
+```
+
+## Troubleshooting
+
+### Common Issues
+
+<AccordionGroup>
+  <Accordion title="API Key Issues">
+    - Ensure your API key is correctly set in environment variables
+    - Check that the API key has the necessary permissions
+    - Verify the API key is not expired
+  </Accordion>
+  <Accordion title="Namespace Problems">
+    - Make sure the namespace exists before adding documents
+    - Check that the namespace type matches your use case
+    - Verify you have access to the namespace
+  </Accordion>
+  <Accordion title="Document Upload Errors">
+    - Check document format and content
+    - Ensure all required fields are present
+    - Verify document IDs are unique
+  </Accordion>
+</AccordionGroup>
+
+### Debug Mode
+
+Enable debug logging to troubleshoot issues:
+
+```python
+import logging
+logging.basicConfig(level=logging.DEBUG)
+```
+
+## Further Resources
+
+For more information about Moorcheh, explore these resources:
+
+<CardGroup cols={2}>
+  <Card
+    title="GitHub Repository"
+    icon="github"
+    href="https://github.com/moorcheh-ai/moorcheh-python-sdk"
+  >
+    Source code and detailed documentation
+  </Card>
+  <Card
+    title="Examples Repository"
+    icon="code"
+    href="https://github.com/moorcheh-ai/moorcheh-examples"
+  >
+    Practical examples and tutorials
+  </Card>
+  <Card
+    title="Official Website"
+    icon="globe"
+    href="https://www.moorcheh.ai/"
+  >
+    Learn more about Moorcheh's capabilities
+  </Card>
+  <Card
+    title="Documentation"
+    icon="book"
+    href="https://console.moorcheh.ai/docs"
+  >
+    Complete API documentation
+  </Card>
+  <Card
+    title="YouTube Channel"
+    icon="youtube"
+    href="https://www.youtube.com/@moorchehai"
+  >
+    Video tutorials and demos
+  </Card>
+  <Card
+    title="Follow on X"
+    icon="x-twitter"
+    href="https://x.com/moorcheh_ai"
+  >
+    Stay updated with latest news
+  </Card>
+</CardGroup>
+
+## Support
+
+Need help with the LangChain integration?
+
+<Card
+  title="Get Support"
+  icon="question-mark-circle"
+  href="mailto:support@moorcheh.ai"
+>
+  Contact our support team for assistance
+</Card>

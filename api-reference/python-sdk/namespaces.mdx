@@ -1,0 +1,127 @@
+---
+title: "Namespace Management"
+description: "Create, list, and delete namespaces using the Python SDK"
+---
+
+# Namespace Management
+
+## create_namespace
+
+Creates a new namespace for storing data.
+
+### Parameters
+
+<ParamField query="namespace_name" type="str" required>
+  A unique name for the namespace.
+</ParamField>
+
+<ParamField query="type" type="str" required>
+  The type of namespace: "text" or "vector".
+</ParamField>
+
+<ParamField query="vector_dimension" type="Optional[int]">
+  The dimension of vectors. Required only if type is "vector".
+</ParamField>
+
+**Returns:** `Dict[str, Any]` - A dictionary confirming the creation details.
+
+**Raises:** `ConflictError`, `InvalidInputError`.
+
+```python Create Namespace Examples
+# Create a text namespace for Moorcheh to handle embeddings
+client.create_namespace(
+    namespace_name="my-faq-documents",
+    type="text"
+)
+
+# Create a vector namespace for your own embeddings
+client.create_namespace(
+    namespace_name="my-image-embeddings",
+    type="vector",
+    vector_dimension=768
+)
+```
+
+## list_namespaces
+
+Retrieves a list of all namespaces accessible by your API key.
+
+**Returns:** `Dict[str, Any]` - A dictionary containing a list of namespace objects under the namespaces key.
+
+```python List Namespaces Example
+all_namespaces = client.list_namespaces()
+for ns in all_namespaces.get('namespaces', []):
+    print(f"- Namespace: {ns['namespace_name']}, Type: {ns['type']}, Items: {ns['itemCount']}")
+```
+
+## delete_namespace
+
+Permanently deletes a namespace and all its contents. This action is irreversible.
+
+### Parameters
+
+<ParamField query="namespace_name" type="str" required>
+  The exact name of the namespace to delete.
+</ParamField>
+
+**Returns:** `None`.
+
+**Raises:** `NamespaceNotFound`.
+
+```python Delete Namespace Example
+client.delete_namespace(namespace_name="my-temporary-namespace")
+```
+
+<Warning>
+Deleting a namespace permanently removes all data within it. This action cannot be undone.
+</Warning>
+
+## Complete Example
+
+```python Complete Namespace Management Example
+from moorcheh_sdk import MoorchehClient, ConflictError, NamespaceNotFound
+
+with MoorchehClient() as client:
+    # Create a text namespace
+    try:
+        result = client.create_namespace(
+            namespace_name="my-documents",
+            type="text"
+        )
+        print(f"Created namespace: {result}")
+    except ConflictError:
+        print("Namespace already exists")
+
+    # List all namespaces
+    namespaces = client.list_namespaces()
+    print(f"Found {len(namespaces['namespaces'])} namespaces")
+
+    # Delete namespace when done
+    try:
+        client.delete_namespace("my-temporary-namespace")
+        print("Namespace deleted successfully")
+    except NamespaceNotFound:
+        print("Namespace was not found")
+```
+
+## Namespace Types
+
+### Text Namespaces
+- Designed for storing and searching text documents
+- Moorcheh automatically generates embeddings
+- Supports full-text search capabilities
+- Ideal for: FAQs, documentation, articles
+
+### Vector Namespaces
+- For storing pre-computed vector embeddings
+- Requires specifying vector dimension
+- You provide your own embeddings
+- Ideal for: Image embeddings, custom ML models
+
+## Best Practices
+
+- Use descriptive namespace names that indicate their purpose
+- Separate different types of content into different namespaces
+- Consider your data organization strategy before creating namespaces
+- Text namespaces are easier to work with for most use cases
+- Only use vector namespaces if you need to provide your own embeddings

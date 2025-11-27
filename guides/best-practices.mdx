@@ -1,0 +1,349 @@
+---
+title: "Best Practices"
+description: "Optimization techniques and best practices for Moorcheh"
+---
+
+## Error Handling
+
+Properly handle errors and exceptions in your application.
+
+### SDK Exception Handling
+
+```python
+from moorcheh_sdk import (
+    MoorchehClient,
+    MoorchehError,
+    AuthenticationError,
+    InvalidInputError,
+    NamespaceNotFound,
+    ConflictError,
+    APIError
+)
+
+try:
+    client = MoorchehClient(api_key="your-api-key")
+    
+    # Perform operations
+    client.delete_namespace("non-existent-namespace")
+    
+except NamespaceNotFound as e:
+    print(f"Namespace not found: {e}")
+except ConflictError as e:
+    print(f"Conflict error: {e}")
+except AuthenticationError as e:
+    print(f"Authentication failed: {e}")
+except InvalidInputError as e:
+    print(f"Invalid input: {e}")
+except APIError as e:
+    print(f"API error: {e}")
+except MoorchehError as e:
+    print(f"General Moorcheh error: {e}")
+```
+
+### REST API Error Responses
+
+| Status Code | Meaning | Common Causes |
+|-------------|---------|---------------|
+| 400 | Bad Request | Invalid parameters, malformed JSON |
+| 401 | Unauthorized | Invalid or missing API key |
+| 403 | Forbidden | Insufficient permissions |
+| 404 | Not Found | Namespace or resource doesn't exist |
+| 409 | Conflict | Namespace already exists |
+| 413 | Payload Too Large | File too large (>10MB) |
+| 429 | Too Many Requests | Rate limit exceeded |
+| 500 | Internal Server Error | Server-side error |
+
+## Performance Optimization
+
+### Document Chunking
+
+Split large documents into smaller, meaningful chunks for better search results:
+
+```python
+def chunk_document(text, chunk_size=1000, overlap=200):
+    """Split document into overlapping chunks"""
+    chunks = []
+    start = 0
+    
+    while start < len(text):
+        end = start + chunk_size
+        chunk = text[start:end]
+        chunks.append(chunk)
+        start = end - overlap
+    
+    return chunks
+
+# Upload chunked documents
+document_text = "Very long document content..."
+chunks = chunk_document(document_text)
+
+documents = [
+    {
+        "id": f"doc-1-chunk-{i}",
+        "text": chunk,
+        "metadata": {
+            "document_id": "doc-1",
+            "chunk_index": i,
+            "total_chunks": len(chunks)
+        }
+    }
+    for i, chunk in enumerate(chunks)
+]
+
+client.upload_text(namespace_name="my-documents", documents=documents)
+```
+
+**Recommended chunk sizes:**
+- **General documents**: 500-1000 characters
+- **Technical docs**: 1000-2000 characters
+- **Legal documents**: 2000-3000 characters
+
+### Batch Operations
+
+Upload data in batches for better performance:
+
+```python
+# Upload in batches
+batch_size = 100
+for i in range(0, len(all_documents), batch_size):
+    batch = all_documents[i:i + batch_size]
+    client.upload_text(namespace_name="my-documents", documents=batch)
+    print(f"Uploaded batch {i//batch_size + 1}")
+```
+
+### Async Processing
+
+For text namespaces, embedding generation is asynchronous. Add a small delay after upload:
+
+```python
+import time
+
+# Upload documents
+client.upload_text(namespace_name="my-documents", documents=documents)
+
+# Wait for embedding generation
+time.sleep(2)
+
+# Now search
+results = client.search(namespaces=["my-documents"], query="my query")
+```
+
+## Namespace Organization
+
+### Separate by Environment
+
+```python
+# Development
+client.create_namespace("dev-documents", "text")
+
+# Staging
+client.create_namespace("staging-documents", "text")
+
+# Production
+client.create_namespace("prod-documents", "text")
+```
+
+### Organize by Content Type
+
+```python
+# Different namespaces for different content
+client.create_namespace("blog-posts", "text")
+client.create_namespace("documentation", "text")
+client.create_namespace("support-tickets", "text")
+```
+
+### Version Management
+
+```python
+# Keep versions separate
+client.create_namespace("embeddings-v1", "vector", 1536)
+client.create_namespace("embeddings-v2", "vector", 768)
+```
+
+## Metadata Best Practices
+
+### Rich Metadata
+
+Include comprehensive metadata for better filtering:
+
+```python
+documents = [{
+    "id": "doc-1",
+    "text": "Document content...",
+    "metadata": {
+        "title": "Product Documentation",
+        "category": "api",
+        "author": "engineering",
+        "date": "2024-01-15",
+        "tags": ["api", "reference", "v2"],
+        "priority": "high",
+        "department": "engineering"
+    }
+}]
+```
+
+### Consistent Metadata Schema
+
+Maintain consistent metadata keys across documents:
+
+```python
+# Good: Consistent schema
+documents = [
+    {"id": "1", "text": "...", "metadata": {"category": "tech", "date": "2024-01"}},
+    {"id": "2", "text": "...", "metadata": {"category": "sales", "date": "2024-02"}}
+]
+
+# Bad: Inconsistent keys
+documents = [
+    {"id": "1", "text": "...", "metadata": {"cat": "tech", "created": "2024-01"}},
+    {"id": "2", "text": "...", "metadata": {"category": "sales", "date": "2024-02"}}
+]
+```
+
+## Search Optimization
+
+### Optimize top_k
+
+Choose the right number of results:
+
+```python
+# Focused search: 3-5 results
+results = client.search(namespaces=["docs"], query="API endpoint", top_k=5)
+
+# Comprehensive search: 10-20 results
+results = client.search(namespaces=["docs"], query="pricing", top_k=15)
+```
+
+### Use Metadata Filters
+
+Combine semantic search with metadata for precision:
+
+```python
+# Filter by category and date
+results = client.search(
+    namespaces=["docs"],
+    query="authentication #category:api #date:2024",
+    top_k=10
+)
+```
+
+### Set Thresholds
+
+Filter low-relevance results:
+
+```python
+# Only return high-confidence results
+results = client.search(
+    namespaces=["docs"],
+    query="security",
+    kiosk_mode=True,
+    threshold=0.7,
+    top_k=10
+)
+```
+
+## AI Generation Best Practices
+
+### Choose the Right Model
+
+```python
+# General queries: Claude Sonnet 4
+answer = client.get_answer(
+    namespace="docs",
+    query="What features do you offer?",
+    ai_model="anthropic.claude-sonnet-4-20250514-v1:0"
+)
+
+# Code-related: DeepSeek R1
+answer = client.get_answer(
+    namespace="code-docs",
+    query="How to implement authentication?",
+    ai_model="deepseek.r1-v1:0"
+)
+
+# Long context: Llama 4 Maverick
+answer = client.get_answer(
+    namespace="legal-docs",
+    query="Summarize the contract",
+    ai_model="meta.llama4-maverick-17b-instruct-v1:0"
+)
+```
+
+### Control Temperature
+
+```python
+# Factual answers: Low temperature
+answer = client.get_answer(
+    namespace="docs",
+    query="List the API endpoints",
+    ai_model="anthropic.claude-sonnet-4-20250514-v1:0",
+    temperature=0.1
+)
+
+# Creative content: Higher temperature
+answer = client.get_answer(
+    namespace="blog",
+    query="Write an introduction",
+    ai_model="anthropic.claude-sonnet-4-20250514-v1:0",
+    temperature=0.9
+)
+```
+
+### Use Custom Prompts
+
+```python
+answer = client.get_answer(
+    namespace="docs",
+    query="Explain the pricing",
+    ai_model="anthropic.claude-sonnet-4-20250514-v1:0",
+    headerPrompt="You are a helpful sales assistant. Be concise and friendly.",
+    footerPrompt="End with a call to action to contact sales."
+)
+```
+
+## Security Best Practices
+
+<AccordionGroup>
+  <Accordion title="Store API keys securely">
+    - Use environment variables
+    - Never commit keys to version control
+    - Use secret management in production
+    - Rotate keys regularly
+  </Accordion>
+
+  <Accordion title="Implement rate limiting">
+    - Add exponential backoff for retries
+    - Monitor API usage
+    - Implement client-side throttling
+  </Accordion>
+
+  <Accordion title="Validate inputs">
+    - Sanitize user inputs before searching
+    - Validate metadata formats
+    - Check file types before upload
+  </Accordion>
+
+  <Accordion title="Monitor usage">
+    - Track API call volumes
+    - Monitor error rates
+    - Set up alerts for anomalies
+  </Accordion>
+</AccordionGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Quick Start" icon="rocket" href="/quickstart">
+    Get started with Moorcheh
+  </Card>
+  <Card title="Use Cases" icon="lightbulb" href="/guides/use-cases">
+    See real-world examples
+  </Card>
+  <Card title="API Reference" icon="code" href="/api-reference/introduction">
+    Complete API documentation
+  </Card>
+  <Card title="Support" icon="headset" href="mailto:support@moorcheh.ai">
+    Get help from our team
+  </Card>
+</CardGroup>
+

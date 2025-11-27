@@ -1,0 +1,280 @@
+---
+title: "Use Cases & Examples"
+description: "Real-world examples and use cases for Moorcheh"
+---
+
+## Overview
+
+Explore practical use cases and implementation examples for Moorcheh's semantic search and AI generation capabilities.
+
+## RAG (Retrieval-Augmented Generation)
+
+Build intelligent Q&A systems that combine semantic search with AI generation.
+
+```python
+from moorcheh_sdk import MoorchehClient
+
+client = MoorchehClient(api_key="your-api-key")
+
+# 1. Upload your knowledge base
+documents = [
+    {
+        "id": "doc-1",
+        "text": "Moorcheh uses MIB technology for fast semantic search.",
+        "metadata": {"category": "technology", "source": "docs"}
+    },
+    {
+        "id": "doc-2",
+        "text": "The API supports 8 AI models including Claude and GPT.",
+        "metadata": {"category": "features", "source": "docs"}
+    }
+]
+
+client.upload_text(namespace_name="knowledge-base", documents=documents)
+
+# 2. Generate contextual answers
+answer = client.get_answer(
+    namespace="knowledge-base",
+    query="What technology does Moorcheh use?",
+    ai_model="anthropic.claude-sonnet-4-20250514-v1:0",
+    top_k=3
+)
+
+print(answer["answer"])
+```
+
+**Best for:**
+- Customer support chatbots
+- Internal knowledge bases
+- Documentation Q&A
+- Educational platforms
+
+## Document Search
+
+Create powerful search engines for large document collections.
+
+```python
+# Upload documents with metadata
+client.upload_text(
+    namespace_name="legal-docs",
+    documents=[
+        {
+            "id": "contract-001",
+            "text": "Service Agreement between Party A and Party B...",
+            "metadata": {
+                "doc_type": "contract",
+                "year": "2024",
+                "department": "legal"
+            }
+        }
+    ]
+)
+
+# Search with metadata filters
+results = client.search(
+    namespaces=["legal-docs"],
+    query="service level agreements #doc_type:contract #year:2024",
+    top_k=10
+)
+
+for match in results["matches"]:
+    print(f"Document: {match['id']}")
+    print(f"Relevance: {match['score']}")
+    print(f"Type: {match['metadata']['doc_type']}")
+```
+
+**Best for:**
+- Legal document search
+- Research paper databases
+- Corporate knowledge management
+- Content management systems
+
+## Semantic Deduplication
+
+Identify and remove duplicate or similar content.
+
+```python
+# Upload content
+client.upload_text(
+    namespace_name="articles",
+    documents=[
+        {"id": "article-1", "text": "Introduction to machine learning..."},
+        {"id": "article-2", "text": "Machine learning basics..."},
+        {"id": "article-3", "text": "Getting started with ML..."}
+    ]
+)
+
+# Find similar articles
+def find_duplicates(article_id, threshold=0.85):
+    # Get the article
+    article = client.get_documents(
+        namespace_name="articles",
+        ids=[article_id]
+    )
+    
+    # Search for similar content
+    results = client.search(
+        namespaces=["articles"],
+        query=article[0]["text"],
+        top_k=10
+    )
+    
+    # Filter by similarity threshold
+    duplicates = [
+        match for match in results["matches"]
+        if match["score"] > threshold and match["id"] != article_id
+    ]
+    
+    return duplicates
+
+# Find duplicates
+duplicates = find_duplicates("article-1", threshold=0.85)
+print(f"Found {len(duplicates)} similar articles")
+```
+
+**Best for:**
+- Content moderation
+- Data cleaning
+- Duplicate detection
+- Content consolidation
+
+## Recommendation System
+
+Build content or product recommendation engines.
+
+```python
+# Upload products with embeddings
+client.upload_vectors(
+    namespace_name="products",
+    vectors=[
+        {
+            "id": "prod-001",
+            "vector": [0.1, 0.2, ...],  # Product embedding
+            "name": "Wireless Headphones",
+            "category": "electronics",
+            "price": 99.99
+        }
+    ]
+)
+
+# Get recommendations based on user interest
+def get_recommendations(user_interest_vector, num_recommendations=5):
+    results = client.search(
+        namespaces=["products"],
+        query=user_interest_vector,
+        top_k=num_recommendations
+    )
+    
+    return [
+        {
+            "name": match["name"],
+            "score": match["score"],
+            "category": match["category"]
+        }
+        for match in results["matches"]
+    ]
+
+# Get personalized recommendations
+recommendations = get_recommendations(user_vector, num_recommendations=5)
+```
+
+**Best for:**
+- E-commerce recommendations
+- Content recommendations
+- Similar item suggestions
+- Personalization engines
+
+## Multi-lingual Search
+
+Search across documents in multiple languages.
+
+```python
+# Upload documents in different languages
+documents = [
+    {"id": "doc-en", "text": "Welcome to Moorcheh", "metadata": {"lang": "en"}},
+    {"id": "doc-es", "text": "Bienvenido a Moorcheh", "metadata": {"lang": "es"}},
+    {"id": "doc-fr", "text": "Bienvenue à Moorcheh", "metadata": {"lang": "fr"}}
+]
+
+client.upload_text(namespace_name="multi-lang-docs", documents=documents)
+
+# Search in specific language
+results = client.search(
+    namespaces=["multi-lang-docs"],
+    query="welcome #lang:en",
+    top_k=5
+)
+
+# Or search across all languages
+results = client.search(
+    namespaces=["multi-lang-docs"],
+    query="welcome",
+    top_k=5
+)
+```
+
+**Best for:**
+- International platforms
+- Multi-lingual support
+- Content localization
+- Global knowledge bases
+
+## Code Search
+
+Search through code repositories and documentation.
+
+```python
+# Upload code snippets
+code_snippets = [
+    {
+        "id": "snippet-1",
+        "text": "def authenticate(api_key): return validate_key(api_key)",
+        "metadata": {"language": "python", "function": "authentication"}
+    },
+    {
+        "id": "snippet-2",
+        "text": "function search(query) { return api.search(query); }",
+        "metadata": {"language": "javascript", "function": "search"}
+    }
+]
+
+client.upload_text(namespace_name="code-base", documents=code_snippets)
+
+# Search for code
+results = client.search(
+    namespaces=["code-base"],
+    query="how to authenticate users #language:python",
+    top_k=5
+)
+
+# Generate code explanation
+answer = client.get_answer(
+    namespace="code-base",
+    query="Explain how authentication works in the codebase",
+    ai_model="deepseek.r1-v1:0"  # Best for code
+)
+```
+
+**Best for:**
+- Code search engines
+- Developer documentation
+- Code examples search
+- Technical support
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Quick Start" icon="rocket" href="/quickstart">
+    Get started with your first implementation
+  </Card>
+  <Card title="Best Practices" icon="star" href="/guides/best-practices">
+    Learn optimization techniques
+  </Card>
+  <Card title="API Reference" icon="code" href="/api-reference/introduction">
+    Explore all API endpoints
+  </Card>
+  <Card title="Integrations" icon="plug" href="/integrations/langchain/overview">
+    Use with LangChain and LlamaIndex
+  </Card>
+</CardGroup>
+

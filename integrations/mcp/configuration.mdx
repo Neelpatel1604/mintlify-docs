@@ -1,0 +1,124 @@
+---
+title: "MCP Configuration"
+description: "Understand available tools, supported models, and troubleshooting"
+---
+
+# MCP Configuration
+
+## What This Server Does
+
+The Moorcheh MCP server provides tools for:
+
+- **Namespace Management:** Create, list, and delete namespaces for organizing your data
+- **Document Operations:** Upload and manage text documents and vector embeddings
+- **Advanced Search:** Perform semantic search across your data
+- **AI-Powered Answers:** Get intelligent responses based on your stored data
+
+## Available Tools
+
+### Namespace Tools
+
+<CardGroup cols={3}>
+  <Card title="list-namespaces" icon="list">
+    View all your available namespaces
+  </Card>
+  <Card title="create-namespace" icon="plus">
+    Create a new namespace for storing data
+  </Card>
+  <Card title="delete-namespace" icon="trash">
+    Remove a namespace and all its contents
+  </Card>
+</CardGroup>
+
+### Data Tools
+
+<CardGroup cols={5}>
+  <Card title="upload-text" icon="upload">
+    Upload text documents to a namespace
+  </Card>
+  <Card title="upload-file" icon="file-arrow-up">
+    Directly upload files to a namespace
+  </Card>
+  <Card title="upload-vectors" icon="database">
+    Upload vector embeddings to a namespace
+  </Card>
+  <Card title="get-data" icon="download">
+    Retrieve text documents by ID from text namespaces
+  </Card>
+  <Card title="delete-data" icon="trash">
+    Remove specific data items from a namespace
+  </Card>
+</CardGroup>
+
+### Search & AI Tools
+
+<CardGroup cols={2}>
+  <Card title="search" icon="magnifying-glass">
+    Search across namespaces with vector similarity
+  </Card>
+  <Card title="answer" icon="sparkles">
+    Get AI-generated answers based on top of your search
+  </Card>
+</CardGroup>
+
+## Supported Bedrock Models
+
+| Model ID | Name | Provider | Description |
+|----------|------|----------|-------------|
+| `anthropic.claude-sonnet-4-20250514-v1:0` | Claude Sonnet 4 | Anthropic | Hybrid reasoning, extended thinking, efficient code generation |
+| `anthropic.claude-sonnet-4-5-20250929-v1:0` | Claude Sonnet 4.5 | Anthropic | Latest Claude model with enhanced capabilities and agentic search |
+| `meta.llama4-maverick-17b-instruct-v1:0` | Llama 4 Maverick 17B | Meta | 1M token context, fine tuning, text summarization, function calling |
+| `meta.llama3-3-70b-instruct-v1:0` | Llama 3.3 70B | Meta | Advanced reasoning and decision making capabilities |
+| `amazon.nova-pro-v1:0` | Amazon Nova Pro | Amazon | 300K context, chat optimized, complex reasoning, math |
+| `deepseek.r1-v1:0` | DeepSeek R1 | DeepSeek | Advanced reasoning and code generation |
+| `openai.gpt-oss-120b-1:0` | OpenAI GPT OSS 120B | OpenAI | Hybrid reasoning, extended thinking, efficient research |
+| `qwen.qwen3-32b-v1:0` | Qwen 3 32B | Qwen | Text generation and code generation |
+
+## Development
+
+### Development Mode
+
+For development with auto-reload:
+
+```bash Development Mode
+npm run dev
+```
+
+### Available Scripts
+
+| Script | Description |
+|--------|-------------|
+| `npm start` | Start the MCP server |
+| `npm run dev` | Start in development mode with auto-reload |
+| `npm test` | Run tests (when available) |
+
+## Troubleshooting
+
+### Common Issues
+
+<AccordionGroup>
+  <Accordion title="Missing required API_KEY environment variable">
+    - Make sure you've created a `.env` file
+    - Verify your API key is correctly set in the `.env` file
+    - Check that the API key is valid in your Moorcheh dashboard
+  </Accordion>
+
+  <Accordion title="Forbidden: Check your API key">
+    - Your API key may be invalid or expired
+    - Generate a new API key from the Moorcheh dashboard
+    - Update your `.env` file with the new key
+  </Accordion>
+
+  <Accordion title="Network Error">
+    - Check your internet connection
+    - Verify the API endpoints are accessible
+    - Try again in a few minutes
+  </Accordion>
+</AccordionGroup>
+
+### Getting Help
+
+- **GitHub Issues:** [https://github.com/moorcheh-ai/moorcheh-mcp/issues](https://github.com/moorcheh-ai/moorcheh-mcp/issues)
+- **Moorcheh Documentation:** [https://console.moorcheh.ai/docs/mcp](https://console.moorcheh.ai/docs/mcp)
+- **Moorcheh Dashboard:** [https://console.moorcheh.ai](https://console.moorcheh.ai)
+

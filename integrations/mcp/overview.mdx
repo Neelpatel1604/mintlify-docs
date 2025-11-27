@@ -1,0 +1,175 @@
+---
+title: "MCP Overview"
+description: "Moorcheh MCP Server - Complete integration guide"
+---
+
+# Moorcheh MCP Server
+
+## What is MCP?
+
+The Model Context Protocol (MCP) is an open standard that enables AI models to interact with external data sources, tools, and services in a secure and standardized way. It provides a common interface for AI applications to access various resources without needing to understand the specific implementation details of each service.
+
+Think of MCP as a universal translator that allows AI models to communicate with different data sources and tools using a common language, regardless of how those services are implemented.
+
+## Moorcheh MCP Implementation
+
+Our MCP server provides seamless integration with Moorcheh's comprehensive AI capabilities including document embedding, vector storage, semantic search, and AI-powered answer generation. This server enables you to interact with Moorcheh's services through the Model Context Protocol.
+
+<CardGroup cols={2}>
+  <Card title="Document Search" icon="magnifying-glass">
+    Search through your uploaded documents using semantic similarity and natural language queries.
+  </Card>
+  <Card title="Document Retrieval" icon="download">
+    Retrieve specific documents by their IDs for direct access to content and metadata.
+  </Card>
+  <Card title="Namespace Management" icon="folder">
+    Create, list, and delete namespaces for organizing your data efficiently.
+  </Card>
+  <Card title="AI-Powered Answers" icon="sparkles">
+    Get intelligent responses based on your stored data using advanced AI models.
+  </Card>
+</CardGroup>
+
+## Quick Start Guide
+
+There are two ways to use the Moorcheh MCP server:
+
+<CardGroup cols={2}>
+  <Card title="Option 1: NPX (Recommended)" icon="zap">
+    No installation required - run directly with npx
+    ```bash
+    MOORCHEH_API_KEY=your_api_key_here npx -y @moorchehai/mcp
+    ```
+  </Card>
+  <Card title="Option 2: Manual Installation" icon="code">
+    Clone and run locally for development
+    - Clone the repository
+    - Install dependencies
+    - Configure environment
+    - Start the server
+  </Card>
+</CardGroup>
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card title="Standardization" icon="check-circle">
+    Consistent interface across different data sources and tools, making integration easier.
+  </Card>
+  <Card title="Security" icon="shield-check">
+    API key-based authentication ensures secure access to your data and resources.
+  </Card>
+  <Card title="Extensibility" icon="plus-circle">
+    Easy to add new data sources and tools without changing your AI application.
+  </Card>
+  <Card title="Performance" icon="zap">
+    Optimized for efficient data retrieval and processing in AI applications.
+  </Card>
+</CardGroup>
+
+## Available Tools
+
+### Namespace Management
+
+<CardGroup cols={3}>
+  <Card title="list-namespaces" icon="list">
+    View all your available namespaces
+  </Card>
+  <Card title="create-namespace" icon="plus">
+    Create a new namespace for storing data
+  </Card>
+  <Card title="delete-namespace" icon="trash">
+    Remove a namespace and all its contents
+  </Card>
+</CardGroup>
+
+### Data Operations
+
+<CardGroup cols={5}>
+  <Card title="upload-text" icon="upload">
+    Upload text documents to a namespace
+  </Card>
+  <Card title="upload-file" icon="file-arrow-up">
+    Directly upload files to a namespace
+  </Card>
+  <Card title="upload-vectors" icon="database">
+    Upload vector embeddings to a namespace
+  </Card>
+  <Card title="get-data" icon="download">
+    Retrieve documents by ID from text namespaces
+  </Card>
+  <Card title="delete-data" icon="trash">
+    Remove specific data items from a namespace
+  </Card>
+</CardGroup>
+
+### Search & AI
+
+<CardGroup cols={2}>
+  <Card title="search" icon="magnifying-glass">
+    Search across namespaces with vector similarity
+  </Card>
+  <Card title="answer" icon="sparkles">
+    Get AI-generated answers based on your search
+  </Card>
+</CardGroup>
+
+## Supported AI Models
+
+Our MCP server supports multiple advanced AI models for generating intelligent responses:
+
+<CardGroup cols={3}>
+  <Card title="Claude Sonnet 4" icon="brain">
+    Hybrid reasoning, extended thinking, efficient code generation
+  </Card>
+  <Card title="Claude Sonnet 4.5" icon="brain">
+    Latest Claude model with enhanced capabilities and agentic search
+  </Card>
+  <Card title="Llama 4 Maverick 17B" icon="cpu">
+    1M token context, fine tuning, text summarization, function calling
+  </Card>
+  <Card title="Llama 3.3 70B" icon="cpu">
+    Advanced reasoning and decision making capabilities
+  </Card>
+  <Card title="Amazon Nova Pro" icon="cloud">
+    300K context, chat optimized, complex reasoning, math
+  </Card>
+  <Card title="DeepSeek R1" icon="search">
+    Advanced reasoning and code generation
+  </Card>
+  <Card title="OpenAI GPT OSS 120B" icon="brain">
+    Hybrid reasoning, extended thinking, efficient research
+  </Card>
+  <Card title="Qwen 3 32B" icon="cpu">
+    Text generation and code generation
+  </Card>
+</CardGroup>
+
+## Prerequisites
+
+<CardGroup cols={3}>
+  <Card title="Node.js" icon="terminal">
+    Version 18.0.0 or higher
+  </Card>
+  <Card title="Moorcheh Account" icon="user">
+    Active account with API access
+  </Card>
+  <Card title="Git" icon="git-branch">
+    For cloning the repository
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<CardGroup cols={3}>
+  <Card title="Setup" icon="settings">
+    Learn how to install, configure, and start the MCP server
+  </Card>
+  <Card title="Configuration" icon="cog">
+    Understand available tools, supported models, and troubleshooting
+  </Card>
+  <Card title="Introduction" icon="book">
+    Deep dive into MCP concepts and Moorcheh's implementation
+  </Card>
+</CardGroup>
+

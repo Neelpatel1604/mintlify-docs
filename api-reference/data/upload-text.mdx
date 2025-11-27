@@ -1,0 +1,346 @@
+---
+title: "Upload Text Data"
+api: "POST https://api.moorcheh.ai/v1/namespaces/{namespace_name}/documents"
+description: "Upload text documents to a text namespace for semantic search and AI-powered operations."
+contentType: "application/json"
+---
+
+## Overview
+
+Upload text documents to a text namespace, enabling semantic search, similarity matching, and AI-powered question answering. The API supports various formats and automatic text processing with metadata enrichment.
+
+<Info>
+Documents are automatically processed to generate embeddings using Amazon Bedrock for optimal search performance.
+</Info>
+
+## Authentication
+
+<ParamField header="x-api-Key" type="string" required>
+  Your API key for authentication
+</ParamField>
+
+<ParamField header="Content-Type" type="string" required>
+  Must be `application/json`
+</ParamField>
+
+## Path Parameters
+
+<ParamField path="namespace_name" type="string" required>
+  Name of the text namespace to upload documents to
+</ParamField>
+
+## Body Parameters
+
+<ParamField body="documents" type="array" required>
+  Array of document objects to upload
+</ParamField>
+
+### Document Object
+
+<ParamField body="documents[].id" type="string">
+  Optional unique identifier for the document. Auto-generated if not provided.
+</ParamField>
+
+<ParamField body="documents[].text" type="string" required>
+  The main text content of the document
+</ParamField>
+
+<ParamField body="documents[].metadata" type="object">
+  Optional metadata object for filtering and organization
+</ParamField>
+
+<ParamField body="documents[].title" type="string">
+  Optional document title
+</ParamField>
+
+<RequestExample>
+
+```bash Single Document
+curl -X POST "https://api.moorcheh.ai/v1/namespaces/my-documents/documents" \
+  -H "Content-Type: application/json" \
+  -H "x-api-Key: your-api-key-here" \
+  -d '{
+    "documents": [
+      {
+        "text": "Machine learning is a subset of artificial intelligence that enables computers to learn and improve from experience without being explicitly programmed.",
+        "title": "Introduction to Machine Learning",
+        "metadata": {
+          "category": "education",
+          "difficulty": "beginner",
+          "author": "Dr. Smith"
+        }
+      }
+    ]
+  }'
+```
+
+```bash Multiple Documents
+curl -X POST "https://api.moorcheh.ai/v1/namespaces/technical-docs/documents" \
+  -H "Content-Type: application/json" \
+  -H "x-api-Key: your-api-key-here" \
+  -d '{
+    "documents": [
+      {
+        "id": "doc_001",
+        "text": "API authentication requires including your API key in the x-api-Key header for all requests.",
+        "title": "API Authentication Guide",
+        "metadata": {
+          "category": "security",
+          "priority": "high"
+        }
+      },
+      {
+        "id": "doc_002",
+        "text": "Rate limiting protects our service by limiting the number of requests per hour. Premium users have higher limits.",
+        "title": "Rate Limiting Policy",
+        "metadata": {
+          "category": "policy",
+          "priority": "medium"
+        }
+      }
+    ]
+  }'
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 202 - Accepted
+{
+  "status": "success",
+  "message": "2 documents uploaded successfully to namespace 'technical-docs'",
+  "upload_id": "upload_1234567890",
+  "namespace_name": "technical-docs",
+  "documents_processed": 2,
+  "processing_status": "in_progress",
+  "estimated_completion": "2024-01-15T10:35:00Z",
+  "uploaded_documents": [
+    {
+      "id": "doc_001",
+      "status": "processing",
+      "character_count": 89
+    },
+    {
+      "id": "doc_002",
+      "status": "processing",
+      "character_count": 112
+    }
+  ]
+}
+```
+
+```json 207 - Multi-Status
+{
+  "status": "partial_success",
+  "message": "2 out of 3 documents uploaded successfully. 1 document failed validation.",
+  "upload_id": "upload_1234567891",
+  "namespace_name": "my-documents",
+  "documents_processed": 2,
+  "documents_failed": 1,
+  "uploaded_documents": [
+    {
+      "id": "doc_001",
+      "status": "processing",
+      "character_count": 156
+    },
+    {
+      "id": "doc_002",
+      "status": "processing",
+      "character_count": 203
+    }
+  ],
+  "failed_documents": [
+    {
+      "id": "doc_003",
+      "error": "Text content too short",
+      "message": "Document text must be at least 10 characters long",
+      "provided_length": 3
+    }
+  ]
+}
+```
+
+```json 400 - Bad Request
+{
+  "error": "Invalid request parameters",
+  "message": "Documents array is required and must contain at least one document",
+  "details": {
+    "field": "documents",
+    "requirement": "Array with minimum 1 document"
+  }
+}
+```
+
+```json 401 - Unauthorized
+{
+  "error": "Unauthorized",
+  "message": "Invalid or missing API key. Please check your x-api-Key header.",
+  "timestamp": "2024-01-15T10:30:00Z"
+}
+```
+
+```json 403 - Forbidden
+{
+  "error": "Forbidden",
+  "message": "Document upload limit reached for your current tier. Upgrade your plan or delete unused documents.",
+  "details": {
+    "current_count": 9985,
+    "tier_limit": 10000,
+    "tier": "professional",
+    "documents_attempted": 25
+  }
+}
+```
+
+```json 404 - Not Found
+{
+  "error": "Namespace not found",
+  "message": "No text namespace found with the name 'my-documents' in your account.",
+  "namespace_name": "my-documents",
+  "suggestion": "Create the namespace first or check the namespace name."
+}
+```
+
+```json 500 - Server Error
+{
+  "error": "Internal server error",
+  "message": "An unexpected error occurred while uploading documents. Please try again later.",
+  "timestamp": "2024-01-15T10:30:00Z",
+  "request_id": "req_1234567890"
+}
+```
+
+</ResponseExample>
+
+## Response Fields
+
+### Success Response (202)
+
+<ResponseField name="status" type="string">
+  Status of the upload ("success" for successful uploads)
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Human-readable confirmation message
+</ResponseField>
+
+<ResponseField name="upload_id" type="string">
+  Unique identifier for tracking this upload batch
+</ResponseField>
+
+<ResponseField name="namespace_name" type="string">
+  Name of the namespace where documents were uploaded
+</ResponseField>
+
+<ResponseField name="documents_processed" type="number">
+  Number of documents successfully processed
+</ResponseField>
+
+<ResponseField name="processing_status" type="string">
+  Current status: "in_progress", "completed", or "failed"
+</ResponseField>
+
+<ResponseField name="estimated_completion" type="string">
+  Estimated ISO 8601 timestamp when processing will complete
+</ResponseField>
+
+<ResponseField name="uploaded_documents" type="array">
+  Array of uploaded document status objects
+</ResponseField>
+
+### Document Status Object
+
+<ResponseField name="id" type="string">
+  Document identifier
+</ResponseField>
+
+<ResponseField name="status" type="string">
+  Processing status: "processing", "completed", or "failed"
+</ResponseField>
+
+<ResponseField name="character_count" type="number">
+  Number of characters in the document text
+</ResponseField>
+
+## Processing Pipeline
+
+<Steps>
+  <Step title="Upload Validation">
+    Documents are validated for format, size, and content requirements
+  </Step>
+  <Step title="Text Processing">
+    Content is cleaned, normalized, and prepared for embedding generation
+  </Step>
+  <Step title="Embedding Generation">
+    High-quality embeddings are generated using Amazon Bedrock
+  </Step>
+  <Step title="Index Updates">
+    Documents are added to the search index for immediate availability
+  </Step>
+  <Step title="Metadata Enrichment">
+    Optional metadata processing and enrichment
+  </Step>
+</Steps>
+
+## Document Limits
+
+<CardGroup cols={2}>
+  <Card title="Text Length" icon="text">
+    **Min:** 10 characters
+    **Max:** 50,000 characters per document
+  </Card>
+  <Card title="Batch Size" icon="layer-group">
+    **Max:** 100 documents per request
+    **Recommended:** 25-50 documents for optimal performance
+  </Card>
+  <Card title="Metadata Size" icon="tags">
+    **Max:** 2KB per document
+    **Keys:** Up to 50 metadata keys
+  </Card>
+  <Card title="Processing Time" icon="clock">
+    **Typical:** 1-5 seconds per document
+    **Large batches:** 30-120 seconds
+  </Card>
+</CardGroup>
+
+## Best Practices
+
+<AccordionGroup>
+  <Accordion title="Optimal Document Structure">
+    - Keep documents focused on a single topic
+    - Include meaningful titles and metadata
+    - Use consistent metadata schemas across documents
+    - Break large documents into logical chunks
+  </Accordion>
+
+  <Accordion title="Metadata Strategy">
+    - Use consistent key naming conventions
+    - Include searchable categories and tags
+    - Add temporal metadata (created_at, updated_at)
+    - Consider user access levels in metadata
+  </Accordion>
+
+  <Accordion title="Performance Optimization">
+    - Upload in batches of 25-50 documents
+    - Use meaningful document IDs for easier management
+    - Monitor processing status for large uploads
+    - Implement retry logic for failed uploads
+  </Accordion>
+</AccordionGroup>
+
+## Use Cases
+
+- **Knowledge Base**: Build searchable documentation and knowledge repositories
+- **Content Management**: Store and organize articles, blog posts, and content
+- **Customer Support**: Upload support documents for AI-powered assistance
+- **Research**: Organize and search through research papers and publications
+- **Legal Documents**: Store and search legal documents with metadata filtering
+- **Training Materials**: Upload educational content for learning applications
+
+## Related Endpoints
+
+- [Search](/api-reference/search/query) - Search uploaded text documents
+- [Get Documents](/api-reference/data/get-documents) - Retrieve document information
+- [Delete Data](/api-reference/data/delete) - Remove uploaded documents
+- [Create Namespace](/api-reference/namespaces/create) - Create text namespaces for uploads

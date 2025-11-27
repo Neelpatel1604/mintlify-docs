@@ -1,0 +1,229 @@
+---
+title: "Semantic Search"
+description: "Learn how to perform semantic search across your data"
+---
+
+## Overview
+
+Moorcheh's Search API allows you to perform advanced semantic searches across one or multiple namespaces using text queries or vector embeddings. The API uses **ITS (Information Theoretic Similarity) scoring** to provide highly accurate relevance rankings.
+
+<Info>
+The Search API supports both text and vector namespaces, with automatic embedding generation for text queries and advanced binarization techniques for optimal performance.
+</Info>
+
+## Search Types
+
+<Tabs>
+  <Tab title="Text Search">
+    ### Text Search
+
+    Search text namespaces using natural language queries. Moorcheh automatically generates embeddings for your query.
+
+    ```python
+    # Search with text query
+    results = client.search(
+        namespaces=["my-documents"],
+        query="What is Moorcheh?",
+        query_type="text",
+        top_k=5
+    )
+    ```
+
+    **Best for:**
+    - Document search
+    - Q&A systems
+    - Knowledge base queries
+  </Tab>
+
+  <Tab title="Vector Search">
+    ### Vector Search
+
+    Search vector namespaces using pre-computed embeddings for maximum control.
+
+    ```python
+    # Search with vector query
+    query_vector = [0.1, 0.2, 0.3, ...]  # Your embedding
+    
+    results = client.search(
+        namespaces=["my-vectors"],
+        query=query_vector,
+        query_type="vector",
+        top_k=5
+    )
+    ```
+
+    **Best for:**
+    - Custom embedding models
+    - Advanced similarity search
+    - Cross-modal search
+  </Tab>
+</Tabs>
+
+## Basic Search
+
+<CodeGroup>
+```python Python SDK
+from moorcheh_sdk import MoorchehClient
+
+client = MoorchehClient(api_key="your-api-key")
+
+# Perform search
+results = client.search(
+    namespaces=["my-documents"],
+    query="What is Moorcheh?",
+    top_k=5
+)
+
+# Display results
+for match in results["matches"]:
+    print(f"ID: {match['id']}")
+    print(f"Score: {match['score']}")
+    print(f"Text: {match.get('text', 'N/A')}")
+```
+
+```bash cURL
+curl -X POST "https://api.moorcheh.ai/v1/search" \
+  -H "Content-Type: application/json" \
+  -H "x-api-Key: your-api-key" \
+  -d '{
+    "namespaces": ["my-documents"],
+    "query": "What is Moorcheh?",
+    "top_k": 5
+  }'
+```
+</CodeGroup>
+
+## Search Parameters
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| `namespaces` | array | Yes | Array of namespace names to search |
+| `query` | string or array | Yes | Text query or vector array |
+| `top_k` | number | No | Number of results (default: 10) |
+| `threshold` | number | No | Minimum score threshold (0-1) |
+| `kiosk_mode` | boolean | No | Enable strict filtering |
+
+## Metadata Filtering
+
+Filter search results using metadata fields for highly targeted results.
+
+### Syntax
+
+- **Metadata filters**: `#key:value`
+- **Keyword filters**: `#keyword`
+
+### Examples
+
+```python
+# Search with metadata filter
+results = client.search(
+    namespaces=["my-documents"],
+    query="technical documentation #category:api",
+    top_k=5
+)
+
+# Multiple filters
+results = client.search(
+    namespaces=["my-documents"],
+    query="payment processing #category:financial #priority:high",
+    top_k=5
+)
+
+# Keyword filters
+results = client.search(
+    namespaces=["my-documents"],
+    query="deployment guide #important #urgent",
+    top_k=5
+)
+```
+
+<Note>
+Filters only apply to text search and metadata must be included when uploading documents.
+</Note>
+
+## Multi-Namespace Search
+
+Search across multiple namespaces simultaneously:
+
+```python
+# Search multiple namespaces
+results = client.search(
+    namespaces=["docs", "blog-posts", "support-tickets"],
+    query="How to integrate the API?",
+    top_k=10
+)
+```
+
+## Kiosk Mode
+
+Enable kiosk mode for production environments with strict filtering:
+
+```python
+# Search with kiosk mode
+results = client.search(
+    namespaces=["my-documents"],
+    query="product features",
+    kiosk_mode=True,
+    threshold=0.7,  # Required when kiosk_mode is True
+    top_k=5
+)
+```
+
+**Kiosk Mode Benefits:**
+- Filters results below threshold
+- More controlled results
+- Better for production environments
+
+## Response Format
+
+```json
+{
+  "matches": [
+    {
+      "id": "doc-123",
+      "score": 0.95,
+      "text": "Document content...",
+      "metadata": {
+        "category": "api",
+        "source": "documentation"
+      }
+    }
+  ],
+  "total": 1
+}
+```
+
+## Best Practices
+
+<CardGroup cols={2}>
+  <Card title="Optimize top_k" icon="sliders">
+    Use lower values (3-5) for focused results, higher values (10-20) for broader exploration
+  </Card>
+  <Card title="Use Metadata Filters" icon="filter">
+    Combine semantic search with metadata for precise targeting
+  </Card>
+  <Card title="Set Thresholds" icon="chart-line">
+    Use threshold parameter to filter low-relevance results
+  </Card>
+  <Card title="Multi-Namespace Search" icon="folder">
+    Search across related namespaces for comprehensive results
+  </Card>
+</CardGroup>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="AI Generation" icon="sparkles" href="/guides/ai-generation">
+    Generate answers from search results
+  </Card>
+  <Card title="Upload Data" icon="upload" href="/api-reference/data/upload-text">
+    Learn how to upload documents
+  </Card>
+  <Card title="API Reference" icon="code" href="/api-reference/search/query">
+    Complete search API documentation
+  </Card>
+  <Card title="Examples" icon="rocket" href="/guides/use-cases">
+    See real-world search examples
+  </Card>
+</CardGroup>
+

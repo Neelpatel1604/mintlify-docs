@@ -1,0 +1,185 @@
+---
+title: "Authentication"
+description: "Learn how to authenticate your API requests"
+---
+
+## API Key Authentication
+
+The Moorcheh API uses API key authentication. You must include your API key in the request headers to access any endpoint.
+
+## Getting Your API Key
+
+<Steps>
+  <Step title="Sign Up">
+    Create a Moorcheh account at [console.moorcheh.ai](https://console.moorcheh.ai)
+  </Step>
+  <Step title="Navigate to API Keys">
+    Go to the API Keys section in your console
+  </Step>
+  <Step title="Generate Key">
+    Generate a new API key or copy an existing one
+  </Step>
+  <Step title="Store Securely">
+    Keep your API key secure and never share it publicly
+  </Step>
+</Steps>
+
+## Using Your API Key
+
+Include your API key in the `x-api-Key` header with every request:
+
+<CodeGroup>
+```python Python SDK
+from moorcheh_sdk import MoorchehClient
+
+client = MoorchehClient(
+    api_key="your-api-key-here",
+    base_url="https://api.moorcheh.ai/v1"
+)
+```
+
+```bash cURL
+curl -X GET "https://api.moorcheh.ai/v1/namespaces" \
+  -H "x-api-Key: your-api-key-here" \
+  -H "Content-Type: application/json"
+```
+
+```javascript JavaScript
+const headers = {
+  'x-api-Key': 'your-api-key-here',
+  'Content-Type': 'application/json'
+};
+
+fetch('https://api.moorcheh.ai/v1/namespaces', {
+  method: 'GET',
+  headers: headers
+});
+```
+</CodeGroup>
+
+## Security Best Practices
+
+<AccordionGroup>
+  <Accordion title="Store API keys securely">
+    - Use environment variables instead of hardcoding
+    - Never commit API keys to version control
+    - Use secret management services in production
+    
+    ```bash
+    # Good: Use environment variables
+    export MOORCHEH_API_KEY="your-api-key"
+    ```
+  </Accordion>
+
+  <Accordion title="Rotate keys regularly">
+    - Generate new API keys periodically
+    - Revoke old keys after rotation
+    - Monitor key usage in your console
+  </Accordion>
+
+  <Accordion title="Use different keys per environment">
+    - Separate keys for development, staging, and production
+    - Easier to track usage and debug issues
+    - Limit blast radius if a key is compromised
+  </Accordion>
+
+  <Accordion title="Revoke compromised keys immediately">
+    - If a key is exposed, revoke it in the console
+    - Generate a new key and update your applications
+    - Monitor for unauthorized usage
+  </Accordion>
+</AccordionGroup>
+
+## Authentication Errors
+
+### 401 Unauthorized
+
+**Error Response:**
+```json
+{
+  "message": "Unauthorized: Invalid API key"
+}
+```
+
+**Common Causes:**
+- Invalid or expired API key
+- Missing `x-api-Key` header
+- Incorrect header name (case-sensitive)
+- API key has been revoked
+
+**Solution:**
+- Verify your API key is correct
+- Ensure you're using `x-api-Key` (note the capital K)
+- Check that the key hasn't been disabled in the console
+
+### 403 Forbidden
+
+**Error Response:**
+```json
+{
+  "message": "Forbidden: Insufficient permissions"
+}
+```
+
+**Common Causes:**
+- API key doesn't have required permissions
+- Account limits exceeded
+
+**Solution:**
+- Check your account tier and limits
+- Contact support if you need increased limits
+
+## Environment Variables
+
+<Tabs>
+  <Tab title="Python">
+    ```python
+    import os
+    from moorcheh_sdk import MoorchehClient
+
+    # Load from environment variable
+    api_key = os.getenv('MOORCHEH_API_KEY')
+    
+    client = MoorchehClient(api_key=api_key)
+    ```
+  </Tab>
+
+  <Tab title="Node.js">
+    ```javascript
+    // Load from environment variable
+    const apiKey = process.env.MOORCHEH_API_KEY;
+
+    const headers = {
+      'x-api-Key': apiKey,
+      'Content-Type': 'application/json'
+    };
+    ```
+  </Tab>
+
+  <Tab title=".env File">
+    ```bash
+    # .env file
+    MOORCHEH_API_KEY=your-api-key-here
+    
+    # Don't forget to add .env to .gitignore!
+    ```
+  </Tab>
+</Tabs>
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Quick Start" icon="rocket" href="/quickstart">
+    Make your first API request
+  </Card>
+  <Card title="Namespaces" icon="folder" href="/guides/namespaces">
+    Learn about organizing your data
+  </Card>
+  <Card title="API Reference" icon="code" href="/api-reference/introduction">
+    Explore all API endpoints
+  </Card>
+  <Card title="Support" icon="headset" href="mailto:support@moorcheh.ai">
+    Get help from our team
+  </Card>
+</CardGroup>
+

@@ -1,0 +1,293 @@
+---
+title: "Configuration"
+description: "Complete guide to configuring your chat application's API, branding, themes, and fonts"
+---
+
+## API Configuration
+
+Configure your Moorcheh AI integration for optimal chat performance.
+
+### Environment Variables
+
+Set your API key in the environment:
+
+```bash
+# .env.local
+NEXT_PUBLIC_MOORCHEH_API_KEY=your_api_key_here
+```
+
+### API Configuration File
+
+Create `config/api-config.json` with your settings:
+
+```json
+{
+  "namespace": "test",
+  "query": "",
+  "top_k": 15,
+  "type": "text",
+  "aiModel": "anthropic.claude-3-7-sonnet-20250219-v1:0",
+  "temperature": 0.7,
+  "kiosk_mode": true,
+  "threshold": 0.01,
+  "chatHistory": [
+    {
+      "role": "assistant",
+      "content": "Hello! I'm Moorcheh AI, ready to assist you. How can I help you today?"
+    }
+  ],
+  "headerPrompt": "You are a helpful AI assistant. Based on the provided context and chat history, please answer the user's query. If the context is not sufficient, say you don't have enough information.",
+  "footerPrompt": "Base your answers on the context provided in the following context block and on our chat history. When using context chunks, prioritize information from chunks with higher relevance labels. Pay special attention to content labeled as 'Close Match' or 'Very High Relevance' as these are most likely to contain the most pertinent information for answering the query."
+}
+```
+
+### Quick Setup via Console
+
+The easiest way to configure your API settings:
+
+<Steps>
+  <Step title="Visit Playground">
+    Go to [Moorcheh Console Playground](https://console.moorcheh.ai/playground)
+  </Step>
+  <Step title="Select Namespace">
+    Choose your text namespace from the dropdown
+  </Step>
+  <Step title="Choose AI Model">
+    Select your preferred AI model
+  </Step>
+  <Step title="Adjust Parameters">
+    Configure temperature, top-k, and other parameters
+  </Step>
+  <Step title="Export Configuration">
+    Click "Export" to download the complete configuration
+  </Step>
+  <Step title="Save Configuration">
+    Copy the JSON content into `config/api-config.json`
+  </Step>
+</Steps>
+
+## Branding Configuration
+
+Customize your application's branding and appearance.
+
+### Interactive Setup (Recommended)
+
+Use the interactive setup flow for instant preview and configuration:
+
+<Info>
+Visit [http://localhost:3000/landing](http://localhost:3000/landing) to use our 4-step interactive setup flow.
+</Info>
+
+### Manual Configuration
+
+Edit `config/appearance.json` directly:
+
+```json
+{
+  "fonts": {
+    "primary": "Inter",
+    "heading": "Playfair Display",
+    "mono": "JetBrains Mono"
+  },
+  "theme": {
+    "defaultTheme": "slate"
+  },
+  "branding": {
+    "appName": "My Chat App",
+    "appTitle": "My Chat",
+    "appSubtitle": "How can I help you today?",
+    "appDescription": "AI-powered chat application",
+    "companyName": "My Company",
+    "contactEmail": "support@mycompany.com",
+    "storagePrefix": "my-app-chat",
+    "exportPrefix": "MyApp-chat",
+    "logo": "/assets/logo.png"
+  }
+}
+```
+
+### Branding Options Reference
+
+| Field | Description | Example |
+|-------|-------------|---------|
+| `appName` | Main app name shown in chat header | "My AI Assistant" |
+| `appTitle` | Browser tab title | "My Chat App" |
+| `appSubtitle` | Welcome message in chat | "How can I help you today?" |
+| `companyName` | Your company/organization name | "My Company" |
+| `contactEmail` | Support contact email | "support@mycompany.com" |
+| `logo` | Logo image path | "/assets/logo.png" |
+
+## Theme Configuration
+
+Choose from 10+ beautiful themes to match your brand.
+
+### Available Themes
+
+Set your default theme in the configuration:
+
+```json
+{
+  "theme": {
+    "defaultTheme": "slate"  // Choose from available themes
+  }
+}
+```
+
+### Theme Options
+
+The boilerplate includes these beautiful themes:
+
+<CardGroup cols={3}>
+  <Card title="Slate" icon="moon" />
+  <Card title="Gray" icon="circle" />
+  <Card title="Zinc" icon="circle" />
+  <Card title="Neutral" icon="circle" />
+  <Card title="Stone" icon="circle" />
+  <Card title="Red" icon="circle" />
+  <Card title="Orange" icon="circle" />
+  <Card title="Amber" icon="circle" />
+  <Card title="Yellow" icon="circle" />
+  <Card title="Lime" icon="circle" />
+  <Card title="Green" icon="circle" />
+  <Card title="Emerald" icon="circle" />
+  <Card title="Teal" icon="circle" />
+  <Card title="Cyan" icon="circle" />
+  <Card title="Sky" icon="circle" />
+  <Card title="Blue" icon="circle" />
+  <Card title="Indigo" icon="circle" />
+  <Card title="Violet" icon="circle" />
+  <Card title="Purple" icon="circle" />
+  <Card title="Fuchsia" icon="circle" />
+  <Card title="Pink" icon="circle" />
+  <Card title="Rose" icon="circle" />
+</CardGroup>
+
+### Live Theme Preview
+
+Test themes instantly using the interactive setup:
+
+<Info>
+Visit [http://localhost:3000/landing](http://localhost:3000/landing) → Step 3: Theme Selection to see live previews.
+</Info>
+
+## Font Configuration
+
+Configure typography with 30+ Google Fonts and system fonts.
+
+### Font Types
+
+Configure three main font categories:
+
+```json
+{
+  "fonts": {
+    "primary": "Inter",           // Main UI text font
+    "heading": "Playfair Display", // Titles and headings
+    "mono": "JetBrains Mono"      // Code blocks and technical text
+  }
+}
+```
+
+### Popular Font Combinations
+
+<AccordionGroup>
+  <Accordion title="Friendly & Readable">
+    - **Primary:** Inter
+    - **Heading:** Space Grotesk
+    - **Mono:** JetBrains Mono
+  </Accordion>
+  <Accordion title="Editorial & Trustworthy">
+    - **Primary:** Lora
+    - **Heading:** Playfair Display
+    - **Mono:** Fira Code
+  </Accordion>
+  <Accordion title="Product & Dashboard">
+    - **Primary:** Inter
+    - **Heading:** Poppins
+    - **Mono:** JetBrains Mono
+  </Accordion>
+</AccordionGroup>
+
+### Live Font Preview
+
+Test fonts with real-time updates:
+
+<Info>
+Visit [http://localhost:3000/landing](http://localhost:3000/landing) → Step 4: Typography to see live font previews.
+</Info>
+
+## Configuration via Console
+
+Alternative method using Moorcheh Console Playground:
+
+<Steps>
+  <Step title="Visit Console">
+    Go to [Moorcheh Console Playground](https://console.moorcheh.ai/playground)
+  </Step>
+  <Step title="Navigate to Appearance">
+    Go to the **Appearance** section
+  </Step>
+  <Step title="Configure Settings">
+    Set up your branding, themes, and fonts
+  </Step>
+  <Step title="Download Configuration">
+    Click "Download" to export the complete configuration
+  </Step>
+  <Step title="Save File">
+    Save the JSON file as `config/appearance.json`
+  </Step>
+</Steps>
+
+<Tip>
+The console playground provides the same configuration options as the interactive setup, with the added benefit of being able to download the complete configuration file.
+</Tip>
+
+## Configuration Validation
+
+Ensure your configuration is valid and working:
+
+### Check Configuration
+
+Visit [http://localhost:3000/demo](http://localhost:3000/demo) to test your themes and fonts.
+
+### Test Chat Interface
+
+Your main chat interface at [http://localhost:3000](http://localhost:3000) will reflect your configuration.
+
+## Troubleshooting
+
+### Common Configuration Issues
+
+<AccordionGroup>
+  <Accordion title="Configuration Not Loading">
+    - Check file paths and JSON syntax
+    - Ensure files are in the correct directories
+    - Restart the development server
+  </Accordion>
+  <Accordion title="Themes Not Applying">
+    - Verify theme name spelling
+    - Check that theme files exist
+    - Clear browser cache
+  </Accordion>
+  <Accordion title="Fonts Not Loading">
+    - Ensure font names are correct
+    - Check Google Fonts availability
+    - Verify font configuration syntax
+  </Accordion>
+</AccordionGroup>
+
+### Debug Steps
+
+1. Check browser console for errors
+2. Verify configuration files are properly formatted
+3. Test with default configuration first
+4. Use the interactive setup to validate settings
+5. Check that all required fields are present
+
+## Next Steps
+
+Now that you've configured your application:
+
+- [Deploy to production](/integrations/chat-boilerplate/deployment)
+- [Customize further](/integrations/chat-boilerplate/configuration)
+- [Test your setup](/integrations/chat-boilerplate/installation)

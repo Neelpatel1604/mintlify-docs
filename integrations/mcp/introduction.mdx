@@ -1,0 +1,88 @@
+---
+title: "MCP Introduction"
+description: "Deep dive into MCP concepts and Moorcheh's implementation"
+---
+
+# MCP Introduction
+
+## What is Model Context Protocol?
+
+The Model Context Protocol (MCP) is an open standard that enables AI models to interact with external data sources, tools, and services in a secure and standardized way. It provides a common interface for AI applications to access various resources without needing to understand the specific implementation details of each service.
+
+Think of MCP as a universal translator that allows AI models to communicate with different data sources and tools using a common language, regardless of how those services are implemented.
+
+## Why Use MCP?
+
+<CardGroup cols={2}>
+  <Card title="Standardization" icon="check-circle">
+    Consistent interface across different data sources and tools, making integration easier.
+  </Card>
+  <Card title="Security" icon="shield-check">
+    Built-in security features ensure safe access to your data and resources.
+  </Card>
+  <Card title="Extensibility" icon="plus-circle">
+    Easy to add new data sources and tools without changing your AI application.
+  </Card>
+  <Card title="Performance" icon="zap">
+    Optimized for efficient data retrieval and processing in AI applications.
+  </Card>
+</CardGroup>
+
+## MCP Architecture
+
+<CardGroup cols={3}>
+  <Card title="Client" icon="monitor">
+    Your AI application that needs to access external data or tools. The client makes requests to servers through the MCP protocol.
+  </Card>
+  <Card title="Server" icon="server">
+    The MCP server (like Moorcheh) that provides access to specific data sources or tools. It handles authentication, data retrieval, and response formatting.
+  </Card>
+  <Card title="Protocol" icon="network">
+    The standardized communication protocol that defines how clients and servers interact, including message formats, authentication, and error handling.
+  </Card>
+</CardGroup>
+
+## Moorcheh MCP Implementation
+
+Our MCP server provides access to Moorcheh's comprehensive AI capabilities including document embedding, vector storage, semantic search, and AI-powered answer generation through a standardized interface. This allows AI applications to:
+
+- Search through uploaded documents using natural language queries
+- Retrieve specific documents by their IDs
+- Upload new documents to namespaces
+- Manage namespaces and document organization
+- Access document metadata and content
+- Generate AI-powered answers based on stored data
+
+## Basic MCP Request Example
+
+```json Example MCP Request
+{
+  "jsonrpc": "2.0",
+  "id": 1,
+  "method": "tools/call",
+  "params": {
+    "name": "search_documents",
+    "arguments": {
+      "query": "machine learning algorithms",
+      "namespace": "tech_docs",
+      "limit": 5
+    }
+  }
+}
+```
+
+## Getting Started
+
+To start using Moorcheh's MCP implementation:
+
+1. Set up your Moorcheh account and get your API key
+2. Choose between NPX (recommended) or manual installation
+3. Configure your MCP client to connect to our MCP server
+4. Test the connection with a simple search request
+5. Integrate the MCP functions into your AI application
+6. Explore advanced features like document upload and namespace management
+
+## Next Steps
+
+Continue to the Setup section to learn how to configure your MCP client and establish a connection to Moorcheh's MCP server.
+

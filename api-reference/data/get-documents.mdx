@@ -1,0 +1,272 @@
+---
+title: "Get Documents"
+api: "POST https://api.moorcheh.ai/v1/namespaces/{namespace_name}/documents/get"
+description: "Retrieve specific documents by their IDs from a namespace. This endpoint allows you to fetch documents that have been previously uploaded and indexed."
+contentType: "application/json"
+---
+
+## Overview
+
+Retrieve specific documents by their IDs from a namespace. This endpoint allows you to fetch documents that have been previously uploaded and indexed. Only documents that exist in the namespace will be returned - non-existent document IDs will be ignored without causing an error.
+
+<Info>
+This endpoint retrieves documents that have been previously uploaded and indexed in the specified namespace. For semantic search and similarity-based retrieval, use the Search API.
+</Info>
+
+## Authentication
+
+<ParamField header="x-api-Key" type="string" required>
+  Your API key for authentication
+</ParamField>
+
+<ParamField header="Content-Type" type="string" required>
+  Must be `application/json`
+</ParamField>
+
+## Path Parameters
+
+<ParamField path="namespace_name" type="string" required>
+  Name of the namespace containing the documents
+</ParamField>
+
+## Request Body
+
+<ParamField body="ids" type="array" required>
+  Array of document IDs to retrieve (cannot be empty, max 100 IDs per request)
+</ParamField>
+
+<RequestExample>
+
+```bash Get Single Document
+curl -X POST "https://api.moorcheh.ai/v1/namespaces/demo_docs/documents/get" \
+  -H "x-api-Key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "ids": ["doc1"]
+  }'
+```
+
+```bash Get Multiple Documents
+curl -X POST "https://api.moorcheh.ai/v1/namespaces/demo_docs/documents/get" \
+  -H "x-api-Key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "ids": ["doc1", "doc2", "doc3"]
+  }'
+```
+
+```bash Get Documents with Maximum IDs
+curl -X POST "https://api.moorcheh.ai/v1/namespaces/demo_docs/documents/get" \
+  -H "x-api-Key: YOUR_API_KEY" \
+  -H "Content-Type: application/json" \
+  -d '{
+    "ids": ["doc1", "doc2", "doc3", "doc4", "doc5"]
+  }'
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200 - Success
+{
+  "status": "success",
+  "message": "Successfully retrieved 1 items from namespace 'demo_docs'.",
+  "requested_ids": 1,
+  "found_items": 1,
+  "items": [
+    {
+      "id": "doc1",
+      "metadata": {},
+      "text": "This is the first document about Moorcheh."
+    }
+  ]
+}
+```
+
+```json 207 - Partial Success
+{
+  "status": "partial",
+  "message": "Retrieval partially completed. Requested: 2, Found: 1, Not found: 1.",
+  "requested_ids": 2,
+  "found_items": 1,
+  "not_found_ids": [
+    "doc12"
+  ],
+  "items": [
+    {
+      "id": "doc1",
+      "metadata": {},
+      "text": "This is the first document about Moorcheh."
+    }
+  ]
+}
+```
+
+```json 400 - Bad Request
+{
+  "status": "failure",
+  "message": "Bad Request: Expected ',' or ']' after array element in JSON at position 20"
+}
+```
+
+```json 401 - Unauthorized
+{
+  "status": "failure",
+  "message": "Unauthorized"
+}
+```
+
+```json 403 - Forbidden
+{
+  "status": "failure",
+  "message": "Forbidden"
+}
+```
+
+```json 404 - Not Found
+{
+  "status": "failure",
+  "message": "Namespace 'demo-docs' not found."
+}
+```
+
+```json 429 - Rate Limited
+{
+  "status": "failure",
+  "message": "API request limit reached for Professional plan (1000000 requests). Current usage: 1000000. Please upgrade your subscription for higher limits.",
+  "current_usage": 1000000,
+  "limit": 1000000
+}
+```
+
+```json 500 - Server Error
+{
+  "status": "failure",
+  "message": "Internal Server Error fetching documents."
+}
+```
+
+</ResponseExample>
+
+## Response Fields
+
+### Success Response (200)
+
+<ResponseField name="status" type="string">
+  Always "success" for 200 responses
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Human-readable confirmation message
+</ResponseField>
+
+<ResponseField name="requested_ids" type="integer">
+  Number of document IDs requested
+</ResponseField>
+
+<ResponseField name="found_items" type="integer">
+  Number of documents successfully found and retrieved
+</ResponseField>
+
+<ResponseField name="items" type="array">
+  Array of retrieved document objects
+</ResponseField>
+
+### Document Object
+
+<ResponseField name="items[].id" type="string">
+  Unique identifier of the document
+</ResponseField>
+
+<ResponseField name="items[].text" type="string">
+  Text content of the document
+</ResponseField>
+
+<ResponseField name="items[].metadata" type="object">
+  Additional metadata associated with the document
+</ResponseField>
+
+### Partial Success Response (207)
+
+<ResponseField name="status" type="string">
+  Always "partial" for 207 responses
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Human-readable message describing the partial success
+</ResponseField>
+
+<ResponseField name="requested_ids" type="integer">
+  Number of document IDs requested
+</ResponseField>
+
+<ResponseField name="found_items" type="integer">
+  Number of documents successfully found and retrieved
+</ResponseField>
+
+<ResponseField name="not_found_ids" type="array">
+  Array of document IDs that were not found
+</ResponseField>
+
+<ResponseField name="items" type="array">
+  Array of successfully retrieved document objects
+</ResponseField>
+
+## Key Features
+
+<CardGroup cols={2}>
+  <Card title="Batch Retrieval" icon="list">
+    Retrieve up to 100 documents in a single request
+  </Card>
+  <Card title="Partial Success" icon="check-circle">
+    Non-existent document IDs are ignored without causing errors
+  </Card>
+  <Card title="Efficient Processing" icon="zap">
+    Uses DynamoDB BatchGetItem for optimal performance
+  </Card>
+  <Card title="Flexible IDs" icon="hashtag">
+    Document IDs can be strings or numbers
+  </Card>
+</CardGroup>
+
+## Performance Considerations
+
+<AccordionGroup>
+  <Accordion title="Batch Size Optimization">
+    - Use the maximum batch size (100 documents) when possible
+    - Group related document retrievals to minimize API calls
+    - Consider document size when batching large documents
+    - Monitor response times for optimal batch sizes
+  </Accordion>
+
+  <Accordion title="Error Handling">
+    - Always check the found_items count vs requested_ids
+    - Handle 207 responses gracefully for partial success
+    - Implement retry logic for 500 errors with exponential backoff
+    - Log missing document IDs for debugging
+  </Accordion>
+
+  <Accordion title="Caching Strategy">
+    - Cache frequently accessed documents client-side
+    - Use document IDs as cache keys for efficient lookups
+    - Consider TTL based on document update frequency
+    - Implement cache invalidation for document updates
+  </Accordion>
+</AccordionGroup>
+
+## Use Cases
+
+- **Document Retrieval**: Fetch specific documents by ID for display or processing
+- **Content Management**: Access and manage previously uploaded documents
+- **Data Export**: Extract documents for backup or migration purposes
+- **Quality Assurance**: Review uploaded content for accuracy and completeness
+- **Integration**: Sync document data with external systems and applications
+- **Debugging**: Investigate and verify document content and metadata
+
+## Related Endpoints
+
+- [Upload Text Data](/api-reference/data/upload-text) - Add new text documents
+- [Upload Vector Data](/api-reference/data/upload-vector) - Add new vector embeddings
+- [Search](/api-reference/search/query) - Find documents using semantic search
+- [Delete Data](/api-reference/data/delete) - Remove specific documents

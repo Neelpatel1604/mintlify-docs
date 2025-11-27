@@ -1,0 +1,380 @@
+---
+title: "Deployment"
+description: "Deploy your chat application to production with various hosting platforms"
+---
+
+## Pre-Deployment Checklist
+
+Ensure your application is ready for production deployment:
+
+<CardGroup cols={3}>
+  <Card
+    title="Environment Configuration"
+    icon="cog"
+  >
+    - API key is properly configured
+    - Namespace is set up and documents are uploaded
+    - Appearance configuration is finalized
+    - Environment variables are set for production
+  </Card>
+  <Card
+    title="Build & Testing"
+    icon="check-circle"
+  >
+    - Application builds successfully
+    - All tests pass
+    - Chat functionality works correctly
+    - Responsive design works on all devices
+  </Card>
+  <Card
+    title="Security & Performance"
+    icon="shield"
+  >
+    - API keys are not exposed in client-side code
+    - Environment variables are properly configured
+    - Images and assets are optimized
+    - Bundle size is reasonable
+  </Card>
+</CardGroup>
+
+## Vercel Deployment (Recommended)
+
+Deploy to Vercel with one click for the best Next.js experience.
+
+### One-Click Deploy
+
+<Card
+  title="Deploy with Vercel"
+  icon="rocket"
+  href="https://vercel.com/new"
+>
+  Click here to deploy directly to Vercel
+</Card>
+
+### Manual Deployment
+
+If you prefer manual deployment:
+
+<Steps>
+  <Step title="Push to Repository">
+    Push your code to GitHub, GitLab, or Bitbucket
+  </Step>
+  <Step title="Connect to Vercel">
+    Connect your repository to Vercel
+  </Step>
+  <Step title="Configure Environment Variables">
+    Set environment variables in Vercel dashboard
+  </Step>
+  <Step title="Deploy">
+    Deploy automatically on every push
+  </Step>
+</Steps>
+
+### Environment Variables
+
+Set these in your Vercel project settings:
+
+```bash
+NEXT_PUBLIC_MOORCHEH_API_KEY=your_production_api_key_here
+```
+
+## Netlify Deployment
+
+Alternative deployment option with Netlify.
+
+### Build Configuration
+
+Create a `netlify.toml` file in your project root:
+
+```toml
+[build]
+  command = "npm run build"
+  publish = ".next"
+
+[build.environment]
+  NODE_VERSION = "18"
+
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200
+```
+
+### Deployment Steps
+
+<Steps>
+  <Step title="Push to Repository">
+    Push your code to a Git repository
+  </Step>
+  <Step title="Connect to Netlify">
+    Connect your repository to Netlify
+  </Step>
+  <Step title="Set Build Command">
+    Set build command: `npm run build`
+  </Step>
+  <Step title="Set Publish Directory">
+    Set publish directory: `.next`
+  </Step>
+  <Step title="Configure Environment Variables">
+    Set environment variables in Netlify dashboard
+  </Step>
+  <Step title="Deploy">
+    Deploy your application
+  </Step>
+</Steps>
+
+### Environment Variables
+
+Set in Netlify dashboard under Site settings → Environment variables:
+
+```bash
+NEXT_PUBLIC_MOORCHEH_API_KEY=your_production_api_key_here
+```
+
+## Environment Configuration
+
+Configure your application for different environments.
+
+### Environment Files
+
+Create environment-specific configuration files:
+
+```bash
+# .env.local (development)
+NEXT_PUBLIC_MOORCHEH_API_KEY=your_dev_api_key_here
+
+# .env.production (production)
+NEXT_PUBLIC_MOORCHEH_API_KEY=your_production_api_key_here
+
+# .env.staging (staging)
+NEXT_PUBLIC_MOORCHEH_API_KEY=your_staging_api_key_here
+```
+
+### Next.js Configuration
+
+Update your `next.config.js`:
+
+```javascript
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+  // Enable standalone output for Docker
+  output: 'standalone',
+  
+  // Environment-specific settings
+  env: {
+    CUSTOM_KEY: process.env.CUSTOM_KEY,
+  },
+  
+  // Image optimization
+  images: {
+    domains: ['your-domain.com'],
+    formats: ['image/webp', 'image/avif'],
+  },
+  
+  // Security headers
+  async headers() {
+    return [
+      {
+        source: '/(.*)',
+        headers: [
+          {
+            key: 'X-Frame-Options',
+            value: 'DENY',
+          },
+          {
+            key: 'X-Content-Type-Options',
+            value: 'nosniff',
+          },
+          {
+            key: 'Referrer-Policy',
+            value: 'origin-when-cross-origin',
+          },
+        ],
+      },
+    ];
+  },
+};
+
+module.exports = nextConfig;
+```
+
+## Post-Deployment
+
+Steps to take after successful deployment:
+
+### 1. Verify Deployment
+
+- Check that your application loads correctly
+- Verify chat functionality works
+- Test responsive design on different devices
+- Confirm environment variables are loaded
+
+### 2. Performance Monitoring
+
+- Monitor Core Web Vitals
+- Check bundle size and loading times
+- Monitor API response times
+- Set up error tracking (e.g., Sentry)
+
+### 3. Security & Maintenance
+
+- Regularly update dependencies
+- Monitor for security vulnerabilities
+- Backup configuration files
+- Set up automated deployments
+
+## Troubleshooting
+
+Common deployment issues and solutions:
+
+### Build Failures
+
+<Warning>
+**Common Issues:**
+- Missing environment variables
+- TypeScript compilation errors
+- Missing dependencies
+- Node.js version incompatibility
+</Warning>
+
+### Runtime Errors
+
+<Warning>
+**Common Issues:**
+- API key not accessible
+- CORS issues
+- Missing API configuration
+- Environment variable loading issues
+</Warning>
+
+### Debugging Steps
+
+<Steps>
+  <Step title="Check Build Logs">
+    Review build logs for errors
+  </Step>
+  <Step title="Verify Environment Variables">
+    Ensure all required variables are set
+  </Step>
+  <Step title="Test API Connectivity">
+    Verify API endpoints are accessible
+  </Step>
+  <Step title="Check Browser Console">
+    Look for client-side errors
+  </Step>
+  <Step title="Verify Configuration Files">
+    Ensure all config files are present
+  </Step>
+</Steps>
+
+## Continuous Deployment
+
+Set up automated deployments for seamless updates.
+
+### GitHub Actions
+
+Create `.github/workflows/deploy.yml`:
+
+```yaml
+name: Deploy to Production
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Build application
+      run: npm run build
+      env:
+        NEXT_PUBLIC_MOORCHEH_API_KEY: ${{ secrets.NEXT_PUBLIC_MOORCHEH_API_KEY }}
+    
+    - name: Deploy to Vercel
+      uses: amondnet/vercel-action@v25
+      with:
+        vercel-token: ${{ secrets.VERCEL_TOKEN }}
+        vercel-org-id: ${{ secrets.VERCEL_ORG_ID }}
+        vercel-project-id: ${{ secrets.VERCEL_PROJECT_ID }}
+        vercel-args: '--prod'
+```
+
+### Required Secrets
+
+Set these secrets in your GitHub repository:
+
+- `NEXT_PUBLIC_MOORCHEH_API_KEY` - Your production API key
+- `VERCEL_TOKEN` - Vercel deployment token
+- `VERCEL_ORG_ID` - Vercel organization ID
+- `VERCEL_PROJECT_ID` - Vercel project ID
+
+## Performance Optimization
+
+### Bundle Optimization
+
+- Use dynamic imports for large components
+- Optimize images with Next.js Image component
+- Enable compression and minification
+- Remove unused dependencies
+
+### Caching Strategy
+
+- Implement proper caching headers
+- Use CDN for static assets
+- Cache API responses when appropriate
+- Optimize database queries
+
+### Monitoring
+
+- Set up performance monitoring
+- Track Core Web Vitals
+- Monitor API response times
+- Set up error tracking
+
+## Security Best Practices
+
+### Environment Variables
+
+- Never commit API keys to version control
+- Use environment-specific configurations
+- Rotate keys regularly
+- Use secure key management
+
+### API Security
+
+- Implement rate limiting
+- Use HTTPS for all communications
+- Validate all inputs
+- Implement proper error handling
+
+### Application Security
+
+- Keep dependencies updated
+- Use security headers
+- Implement proper authentication
+- Regular security audits
+
+## Support
+
+Need help with deployment?
+
+<Card
+  title="Get Support"
+  icon="question-mark-circle"
+  href="mailto:support@moorcheh.ai"
+>
+  Contact our support team for deployment assistance
+</Card>

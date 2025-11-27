@@ -1,0 +1,231 @@
+---
+title: "Delete Data"
+api: "POST https://api.moorcheh.ai/v1/namespaces/{namespace_name}/documents/delete"
+description: "Delete specific documents or vectors from a namespace by providing their IDs."
+contentType: "application/json"
+---
+
+## Overview
+
+Delete specific documents or vectors from a namespace by providing their IDs. Use the documents endpoint for text data and vectors endpoint for vector data. Both operations are permanent and decrement your total item count.
+
+<Warning>
+This operation permanently deletes data and cannot be undone. Deleted items will decrement your total item count.
+</Warning>
+
+## Endpoints
+
+- **Documents**: `POST /namespaces/{namespace_name}/documents/delete` - Delete text documents from namespace
+- **Vectors**: `POST /namespaces/{namespace_name}/vectors/delete` - Delete vector embeddings from namespace
+
+## Authentication
+
+<ParamField header="x-api-key" type="string" required>
+  Your API key for authentication
+</ParamField>
+
+<ParamField header="Content-Type" type="string" required>
+  Must be `application/json`
+</ParamField>
+
+## Path Parameters
+
+<ParamField path="namespace_name" type="string" required>
+  Name of the namespace containing the data to delete
+</ParamField>
+
+## Body Parameters
+
+<ParamField body="ids" type="array" required>
+  Array of item IDs to delete (max 1000 items per request). Numbers will be converted to strings.
+</ParamField>
+
+<RequestExample>
+
+```bash Delete Documents
+curl -X POST "https://api.moorcheh.ai/v1/namespaces/my-namespace/documents/delete" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: your-api-key-here" \
+  -d '{
+    "ids": [
+      "document-001",
+      "document-002",
+      "document-003"
+    ]
+  }'
+```
+
+```bash Delete Vectors
+curl -X POST "https://api.moorcheh.ai/v1/namespaces/my-vector-namespace/vectors/delete" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: your-api-key-here" \
+  -d '{
+    "ids": [
+      "vector-123",
+      "vector-456",
+      "vector-789"
+    ]
+  }'
+```
+
+```json Request Body
+{
+  "ids": [
+    "document-001",
+    "vector-123",
+    "item-456",
+    "doc-789"
+  ]
+}
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200 - Success
+{
+  "status": "success",
+  "message": "Successfully processed deletion request. Requested: 1, Actually deleted: 0 items from namespace 'test'.",
+  "requested_deletions": 1,
+  "actual_deletions": 0,
+  "remaining_items": 1,
+  "requested_ids": [
+    "doc-001"
+  ]
+}
+```
+
+```json 207 - Multi-Status
+{
+  "status": "partial",
+  "message": "Deletion partially completed. Requested: 5, Actually deleted: 3, Failed/Unprocessed: 2.",
+  "requested_deletions": 5,
+  "actual_deletions": 3,
+  "remaining_items": 8,
+  "unprocessed_ids": [
+    "item_003",
+    "item_004"
+  ]
+}
+```
+
+```
+
+```json 400 - Bad Request
+{
+  "status": "failure",
+  "message": "Bad Request: ids array is required and cannot be empty"
+}
+```
+
+```json 401 - Unauthorized
+{
+  "status": "failure",
+  "message": "Unauthorized: Missing API key"
+}
+```
+
+```json 403 - Forbidden
+{
+  "status": "failure",
+  "message": "Forbidden"
+}
+```
+
+```json 404 - Not Found
+{
+  "status": "failure",
+  "message": "Namespace 'test-namespace' not found"
+}
+```
+
+```json 429 - Rate Limited
+{
+  "status": "failure",
+  "message": "API request limit reached for Professional plan (1000000 requests). Current usage: 1000000. Please upgrade your subscription for higher limits.",
+  "current_usage": 1000000,
+  "limit": 1000000
+}
+```
+
+```json 500 - Server Error
+{
+  "status": "failure",
+  "message": "Internal Server Error fetching namespaces."
+}
+```
+
+</ResponseExample>
+
+## Response Fields
+
+### Success Response (200)
+
+<ResponseField name="status" type="string">
+  Always "success" for 200 responses
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Human-readable confirmation message with deletion counts
+</ResponseField>
+
+<ResponseField name="requested_deletions" type="number">
+  Number of items requested to be deleted
+</ResponseField>
+
+<ResponseField name="actual_deletions" type="number">
+  Number of items actually deleted
+</ResponseField>
+
+<ResponseField name="remaining_items" type="number">
+  Total number of items remaining in namespace after deletion
+</ResponseField>
+
+<ResponseField name="requested_ids" type="array">
+  List of item IDs that were requested to be deleted
+</ResponseField>
+
+### Partial Success Response (207)
+
+<ResponseField name="status" type="string">
+  "partial" for 207 responses
+</ResponseField>
+
+<ResponseField name="unprocessed_ids" type="array">
+  IDs of items that failed to be deleted
+</ResponseField>
+
+## Important Notes
+
+- Maximum of 1,000 IDs can be deleted in a single request
+- IDs can be strings or numbers - they'll be converted to strings internally
+- This operation permanently deletes data and cannot be undone
+- Successfully deleted items will decrement your total item count
+- Use the correct endpoint: documents/delete for text data, vectors/delete for vector data
+- Both endpoints use POST method (not DELETE) for security and payload reasons
+- Namespace must exist and belong to your account
+- The API uses batch deletion for efficient processing
+
+## Understanding Responses
+
+- **200 Response**: No items failed to process (no unprocessed items)
+- **207 Response**: Some items were successfully deleted while others failed
+- Check `actual_deletions` vs `requested_deletions` to see if items were found
+- If `actual_deletions` is 0, the requested IDs may not exist in the namespace
+- The `remaining_items` count reflects the current namespace size
+
+## Use Cases
+
+- **Data Cleanup**: Remove outdated or temporary documents/vectors
+- **Content Management**: Delete specific items by ID
+- **Privacy Compliance**: Remove specific user data
+- **Storage Management**: Free up space by removing unused content
+- **Testing**: Clean specific test data between runs
+
+## Related Endpoints
+
+- [Get Documents](/api-reference/data/get-documents) - Retrieve documents before deletion
+- [Upload Text Data](/api-reference/data/upload-text) - Add new text documents
+- [Upload Vector Data](/api-reference/data/upload-vector) - Add new vector data
+- [List Namespaces](/api-reference/namespaces/list) - View namespace information

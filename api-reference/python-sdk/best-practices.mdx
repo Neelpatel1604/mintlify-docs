@@ -1,0 +1,269 @@
+---
+title: "Best Practices"
+description: "Learn best practices and error handling for the Moorcheh Python SDK"
+---
+
+# Best Practices & Error Handling
+
+Learn how to use the Moorcheh Python SDK effectively and efficiently in your applications.
+
+## 1. Use Context Managers
+
+Always use the client as a context manager (with statement) to ensure proper cleanup of resources.
+
+```python Context Manager Usage
+# Good - Resources are automatically managed
+with MoorchehClient() as client:
+    results = client.search(...)
+
+# Bad - Manual cleanup required
+client = MoorchehClient()
+try:
+    results = client.search(...)
+finally:
+    client.close()
+```
+
+## 2. Batch Processing
+
+When uploading large amounts of data, use batching to optimize performance and handle errors gracefully.
+
+```python Batch Processing Example
+def process_documents(documents, batch_size=100):
+    with MoorchehClient() as client:
+        for i in range(0, len(documents), batch_size):
+            batch = documents[i:i + batch_size]
+            try:
+                client.upload_documents("my-namespace", batch)
+                print(f"Uploaded batch {i//batch_size + 1}")
+            except Exception as e:
+                print(f"Error in batch {i//batch_size + 1}: {e}")
+                # Log error and continue with next batch
+```
+
+## 3. Environment Variables
+
+Store sensitive information like API keys in environment variables instead of hardcoding them.
+
+```python Environment Variables Example
+# config.py
+import os
+from dotenv import load_dotenv
+
+load_dotenv()  # Load environment variables from .env file
+
+# main.py
+from moorcheh_sdk import MoorchehClient
+
+# API key will be automatically loaded from MOORCHEH_API_KEY
+client = MoorchehClient()
+```
+
+## 4. Implement Retries
+
+For production applications, implement retry logic for transient errors.
+
+```python Retry Logic Example
+from tenacity import retry, stop_after_attempt, wait_exponential
+from moorcheh_sdk import MoorchehClient, ServerError, RateLimitError
+
+@retry(
+    stop=stop_after_attempt(3),
+    wait=wait_exponential(multiplier=1, min=4, max=10),
+    retry=(ServerError, RateLimitError)
+)
+def search_with_retry(client, query):
+    return client.search(
+        namespaces=["my-namespace"],
+        query=query
+    )
+```
+
+## 5. Namespace Organization
+
+Organize your namespaces logically and use descriptive names.
+
+```python Namespace Organization Example
+# Good - Clear purpose and organization
+client.create_namespace("customer-support-docs", type="text")
+client.create_namespace("product-descriptions", type="text")
+client.create_namespace("user-embeddings", type="vector")
+
+# Bad - Unclear purpose
+client.create_namespace("ns1", type="text")
+client.create_namespace("data", type="text")
+```
+
+## 6. Document Structure
+
+Use consistent and well-structured document formats.
+
+```python Document Structure Example
+# Good - Well-structured documents
+docs = [
+    {
+        "id": "doc-001",
+        "text": "Clear and concise content",
+        "metadata": {
+            "author": "John Doe",
+            "category": "Tutorial",
+            "date": "2024-01-01"
+        }
+    }
+]
+
+# Bad - Inconsistent structure
+docs = [
+    {"id": 1, "content": "Some text"},  # Different field name
+    {"doc_id": "2", "text": "More text"}  # Inconsistent ID field
+]
+```
+
+## 7. Logging and Monitoring
+
+Implement proper logging for debugging and monitoring.
+
+```python Logging Example
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+def upload_documents(client, namespace, documents):
+    try:
+        logger.info(f"Uploading {len(documents)} documents to {namespace}")
+        client.upload_documents(namespace, documents)
+        logger.info("Upload completed successfully")
+    except Exception as e:
+        logger.error(f"Upload failed: {e}", exc_info=True)
+        raise
+```
+
+## 8. Testing
+
+Write tests for your SDK integration code.
+
+```python Testing Example
+import pytest
+from moorcheh_sdk import MoorchehClient, ValidationError
+
+def test_document_upload():
+    with MoorchehClient() as client:
+        # Test valid document
+        valid_doc = {"id": "test-1", "text": "Valid content"}
+        assert client.upload_documents("test-ns", [valid_doc])
+
+        # Test invalid document
+        invalid_doc = {"text": "Missing ID"}
+        with pytest.raises(ValidationError):
+            client.upload_documents("test-ns", [invalid_doc])
+```
+
+## Error Handling
+
+The SDK uses custom exceptions to signal specific problems. It's best to wrap your code in a try...except block to handle them gracefully.
+
+```python Error Handling Example
+from moorcheh_sdk import MoorchehClient, ConflictError, NamespaceNotFound, APIError
+
+try:
+    with MoorchehClient() as client:
+        # This will fail if the namespace doesn't exist
+        client.delete_namespace("non-existent-namespace")
+except NamespaceNotFound as e:
+    print(f"Caught expected error: The namespace was not found. Details: {e}")
+except APIError as e:
+    print(f"An unexpected API error occurred: {e}")
+except Exception as e:
+    print(f"A general error occurred: {e}")
+```
+
+## Exception Hierarchy
+
+The SDK provides a hierarchy of exceptions for different error conditions:
+
+<CardGroup cols={2}>
+  <Card title="MoorchehError" icon="exclamation-triangle">
+    Base exception for all SDK errors
+  </Card>
+  <Card title="APIError" icon="server">
+    General API errors (4xx, 5xx responses)
+  </Card>
+  <Card title="AuthenticationError" icon="key">
+    Invalid or missing API key
+  </Card>
+  <Card title="ConflictError" icon="warning">
+    Resource already exists (409)
+  </Card>
+  <Card title="NamespaceNotFound" icon="search">
+    Namespace doesn't exist (404)
+  </Card>
+  <Card title="ValidationError" icon="check-circle">
+    Invalid input parameters
+  </Card>
+  <Card title="RateLimitError" icon="clock">
+    Too many requests (429)
+  </Card>
+  <Card title="ServerError" icon="server">
+    Internal server error (5xx)
+  </Card>
+</CardGroup>
+
+## Production Checklist
+
+<Steps>
+  <Step title="Security">
+    - Store API keys in environment variables
+    - Never commit API keys to version control
+    - Use different API keys for different environments
+    - Regularly rotate API keys
+  </Step>
+
+  <Step title="Error Handling">
+    - Implement comprehensive exception handling
+    - Add retry logic for transient failures
+    - Log errors with appropriate detail
+    - Monitor error rates and patterns
+  </Step>
+
+  <Step title="Performance">
+    - Use context managers for resource management
+    - Batch large uploads and operations
+    - Set appropriate timeouts
+    - Monitor API usage and quotas
+  </Step>
+
+  <Step title="Data Management">
+    - Use consistent document structures
+    - Organize namespaces logically
+    - Implement data validation
+    - Plan for data lifecycle management
+  </Step>
+
+  <Step title="Testing">
+    - Write unit tests for SDK integration
+    - Test error conditions and edge cases
+    - Use test namespaces for development
+    - Implement integration tests
+  </Step>
+</Steps>
+
+## Additional Best Practices
+
+### Async Processing Awareness
+- **Text Documents**: Remember that embedding is asynchronous. Add a short delay (time.sleep()) before searching to ensure your documents are indexed and available.
+- **Vector Documents**: Vector uploads are synchronous and immediately available for search.
+
+### Document Chunking
+- For best search and generative AI results, split large documents into smaller, meaningful chunks (e.g., paragraphs) before uploading.
+- Each chunk should have a unique ID and contain coherent, self-contained information.
+
+### Performance Optimization
+- Use appropriate `top_k` values - higher values provide more context but may increase response time.
+- Set reasonable thresholds to filter out low-relevance results.
+- Use kiosk mode for production applications where result quality is critical.
+
+### Memory Management
+- For large batch operations, process data in chunks to avoid memory issues.
+- Clean up large variables after processing batches.
+- Monitor memory usage during bulk operations.

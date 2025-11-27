@@ -1,80 +1,199 @@
 ---
-title: "Quickstart"
-description: "Start building awesome documentation in minutes"
+title: "Quick Start"
+description: "Get started with Moorcheh in under 5 minutes"
 ---
 
-## Get started in three steps
+## Prerequisites
 
-Get your documentation site running locally and make your first customization.
-
-### Step 1: Set up your local environment
-
-<AccordionGroup>
-  <Accordion icon="copy" title="Clone your docs locally">
-    During the onboarding process, you created a GitHub repository with your docs content if you didn't already have one. You can find a link to this repository in your [dashboard](https://dashboard.mintlify.com).
+<Steps>
+  <Step title="Sign Up">
+    Create your account at [console.moorcheh.ai](https://console.moorcheh.ai)
+  </Step>
+  
+  <Step title="Get Your API Key">
+    Navigate to the API Keys section in your dashboard and generate a new API key
     
-    To clone the repository locally so that you can make and preview changes to your docs, follow the [Cloning a repository](https://docs.github.com/en/repositories/creating-and-managing-repositories/cloning-a-repository) guide in the GitHub docs.
-  </Accordion>
-  <Accordion icon="rectangle-terminal" title="Start the preview server">
-    1. Install the Mintlify CLI: `npm i -g mint`
-    2. Navigate to your docs directory and run: `mint dev`
-    3. Open `http://localhost:3000` to see your docs live!
-    
-    <Tip>Your preview updates automatically as you edit files.</Tip>
-  </Accordion>
-</AccordionGroup>
+    <Warning>
+    Store your API key securely. Never commit it to version control or share it publicly.
+    </Warning>
+  </Step>
+</Steps>
 
-### Step 2: Deploy your changes
+## Base URL
 
-<AccordionGroup>
-  <Accordion icon="github" title="Install our GitHub app">
-    Install the Mintlify GitHub app from your [dashboard](https://dashboard.mintlify.com/settings/organization/github-app).
-    
-    Our GitHub app automatically deploys your changes to your docs site, so you don't need to manage deployments yourself.
-</Accordion>
-<Accordion icon="palette" title="Update your site name and colors">
-    For a first change, let's update the name and colors of your docs site.
+All API endpoints are accessible at:
 
-    1. Open `docs.json` in your editor.
-    2. Change the `"name"` field to your project name.
-    3. Update the `"colors"` to match your brand.
-    4. Save and see your changes instantly at `http://localhost:3000`.
+```
+https://api.moorcheh.ai/v1
+```
 
-    <Tip>Try changing the primary color to see an immediate difference!</Tip>
-  </Accordion>
-</AccordionGroup>
+## Authentication
 
-### Step 3: Go live
+The Moorcheh API uses API key authentication. Include your API key in the `x-api-Key` header with every request.
 
-<Accordion icon="rocket" title="Publish your docs">
-  1. Commit and push your changes.
-  2. Your docs will update and be live in moments!
-</Accordion>
+<Tabs>
+  <Tab title="Python SDK">
+    ## Install the SDK
 
-## Next steps
+    ```bash
+    pip install moorcheh-sdk
+    ```
 
-Now that you have your docs running, explore these key features:
+    ## Initialize the Client
+
+    ```python
+    from moorcheh_sdk import MoorchehClient
+
+    # Initialize client
+    client = MoorchehClient(
+        api_key="your-api-key-here",
+        base_url="https://api.moorcheh.ai/v1"
+    )
+    ```
+
+    ## Create a Namespace
+
+    ```python
+    # Create a vector namespace
+    client.create_namespace(
+        namespace_name="my-vectors",
+        type="vector",
+        vector_dimension=1536
+    )
+    ```
+
+    ## Upload Vectors
+
+    ```python
+    # Upload vector embeddings
+    vectors = [
+        {
+            "id": "vec-1",
+            "vector": [0.1, 0.2, 0.3, ...],  # 1536-dimensional vector
+            "source": "document-1",
+            "index": 0
+        },
+        {
+            "id": "vec-2",
+            "vector": [0.4, 0.5, 0.6, ...],
+            "source": "document-2",
+            "index": 1
+        }
+    ]
+
+    result = client.upload_vectors(
+        namespace_name="my-vectors",
+        vectors=vectors
+    )
+    print(f"Uploaded {result['processed']} vectors")
+    ```
+
+    ## Search
+
+    ```python
+    # Perform vector similarity search
+    query_vector = [0.1, 0.2, 0.3, ...]  # Your query vector
+
+    results = client.search(
+        namespaces=["my-vectors"],
+        query=query_vector,
+        top_k=5
+    )
+
+    # Display results
+    for match in results["matches"]:
+        print(f"ID: {match['id']}, Score: {match['score']}")
+    ```
+  </Tab>
+
+  <Tab title="REST API">
+    ## Create a Namespace
+
+    ```bash
+    curl -X POST "https://api.moorcheh.ai/v1/namespaces" \
+      -H "Content-Type: application/json" \
+      -H "x-api-Key: your-api-key-here" \
+      -d '{
+        "namespace_name": "my-vectors",
+        "type": "vector",
+        "vector_dimension": 1536
+      }'
+    ```
+
+    ## Upload Vectors
+
+    ```bash
+    curl -X POST "https://api.moorcheh.ai/v1/namespaces/my-vectors/vectors" \
+      -H "Content-Type: application/json" \
+      -H "x-api-Key: your-api-key-here" \
+      -d '{
+        "vectors": [
+          {
+            "id": "vec-1",
+            "vector": [0.1, 0.2, 0.3, ...],
+            "source": "document-1"
+          }
+        ]
+      }'
+    ```
+
+    ## Search
+
+    ```bash
+    curl -X POST "https://api.moorcheh.ai/v1/search" \
+      -H "Content-Type: application/json" \
+      -H "x-api-Key: your-api-key-here" \
+      -d '{
+        "namespaces": ["my-vectors"],
+        "query": [0.1, 0.2, 0.3, ...],
+        "top_k": 5
+      }'
+    ```
+  </Tab>
+</Tabs>
+
+## Next Steps
 
 <CardGroup cols={2}>
-
-<Card title="Write Content" icon="pen-to-square" href="/essentials/markdown">
-  Learn MDX syntax and start writing your documentation.
-</Card>
-
-<Card title="Customize style" icon="palette" href="/essentials/settings">
-  Make your docs match your brand perfectly.
-</Card>
-
-<Card title="Add code examples" icon="square-code" href="/essentials/code">
-  Include syntax-highlighted code blocks.
-</Card>
-
-<Card title="API documentation" icon="code" href="/api-reference/introduction">
-  Auto-generate API docs from OpenAPI specs.
-</Card>
-
+  <Card title="API Reference" icon="code" href="/api-reference/introduction">
+    Explore the complete API documentation
+  </Card>
+  <Card title="Python SDK" icon="python" href="/api-reference/python-sdk/overview">
+    Learn more about the Python SDK
+  </Card>
+  <Card title="Integrations" icon="plug" href="/integrations/langchain/overview">
+    Integrate with LangChain, LlamaIndex, and more
+  </Card>
+  <Card title="Support" icon="headset" href="mailto:support@moorcheh.ai">
+    Get help from our team
+  </Card>
 </CardGroup>
 
-<Note>
-  **Need help?** See our [full documentation](https://mintlify.com/docs) or join our [community](https://mintlify.com/community).
-</Note>
+## Common Issues
+
+<AccordionGroup>
+  <Accordion title="Authentication Failed">
+    **Error**: `401 Unauthorized`
+    
+    **Solution**: 
+    - Verify your API key is correct
+    - Ensure you're using the header `x-api-Key` (note the capital K)
+    - Check that your API key hasn't been disabled
+  </Accordion>
+
+  <Accordion title="Namespace Not Found">
+    **Error**: `404 Namespace not found`
+    
+    **Solution**:
+    - Create the namespace first using the create namespace endpoint
+    - Verify the namespace name matches exactly (case-sensitive)
+  </Accordion>
+
+  <Accordion title="Vector Dimension Mismatch">
+    **Error**: `400 Vector dimension mismatch`
+    
+    **Solution**:
+    - Ensure all vectors match the dimension specified when creating the namespace
+    - Verify your embedding model output dimension
+  </Accordion>
+</AccordionGroup>

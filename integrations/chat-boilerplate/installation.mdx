@@ -1,0 +1,224 @@
+---
+title: "Installation & Setup"
+description: "Complete guide to installing and setting up your Moorcheh Chat Boilerplate project"
+---
+
+## Prerequisites
+
+Before you begin, make sure you have the following installed:
+
+- **Node.js** (version 18 or higher)
+- **npm** or **yarn** package manager
+- **Git** for version control
+
+## Installation Methods
+
+### Option 1: Direct Creation (Recommended)
+
+The easiest way to create a new project is using npx:
+
+```bash
+npx moorcheh-chat-boilerplate
+```
+
+This will:
+- Prompt you for a project name
+- Create a new directory with all boilerplate files
+- Set up the basic project structure
+
+### Option 2: Global Installation
+
+You can also install the boilerplate globally:
+
+```bash
+npm install -g moorcheh-chat-boilerplate
+```
+
+Then create new projects with:
+
+```bash
+moorcheh-chat-boilerplate
+```
+
+## Project Setup
+
+### 1. Install Dependencies
+
+Navigate to your project directory and install dependencies:
+
+```bash
+cd your-project-name
+npm install
+```
+
+### 2. Get Your Moorcheh API Key
+
+You'll need an API key to connect to Moorcheh AI services:
+
+<Steps>
+  <Step title="Visit Console">
+    Go to [Moorcheh Console](https://console.moorcheh.ai/)
+  </Step>
+  <Step title="Sign Up/Login">
+    Create an account or log in to your existing account
+  </Step>
+  <Step title="Get API Key">
+    Navigate to [API Keys](https://console.moorcheh.ai/api-keys) and create a new key
+  </Step>
+  <Step title="Copy Key">
+    Copy your API key for the next step
+  </Step>
+</Steps>
+
+<Warning>
+Keep your API key secure and never share it publicly. Store it as an environment variable.
+</Warning>
+
+### 3. Create Text Namespace
+
+Set up a namespace to store your documents for AI chat:
+
+<Steps>
+  <Step title="Visit Namespaces">
+    Go to [Moorcheh Console Namespaces](https://console.moorcheh.ai/namespaces)
+  </Step>
+  <Step title="Create Namespace">
+    Click "Create Namespace" and choose "Text" as the type
+  </Step>
+  <Step title="Name Your Namespace">
+    Enter a descriptive name (e.g., "my-chat-docs")
+  </Step>
+  <Step title="Upload Documents">
+    Upload your documents to the namespace
+  </Step>
+</Steps>
+
+<Info>
+Supported file formats: PDF, DOCX, CSV, JSON, TXT, MD, Excel files
+</Info>
+
+### 4. Set Environment Variables
+
+Create a `.env.local` file in your project root:
+
+```bash
+NEXT_PUBLIC_MOORCHEH_API_KEY=your_api_key_here
+```
+
+### 5. Configure API Settings
+
+Set up your API configuration using the Moorcheh Console Playground:
+
+<Steps>
+  <Step title="Visit Playground">
+    Go to [Moorcheh Console Playground](https://console.moorcheh.ai/playground)
+  </Step>
+  <Step title="Select Namespace">
+    Choose your text namespace from the dropdown
+  </Step>
+  <Step title="Choose AI Model">
+    Select your preferred AI model
+  </Step>
+  <Step title="Configure Settings">
+    Adjust temperature, top-k, and other parameters
+  </Step>
+  <Step title="Export Configuration">
+    Click "Export" to download the configuration JSON
+  </Step>
+  <Step title="Save Configuration">
+    Copy the JSON content into `config/api-config.json` in your project
+  </Step>
+</Steps>
+
+### 6. Start Development Server
+
+You're ready to start developing! Run the development server:
+
+```bash
+npm run dev
+```
+
+<Success>
+Open [http://localhost:3000](http://localhost:3000) to see your chat application.
+</Success>
+
+## Interactive Setup (Optional)
+
+Use the interactive setup flow to customize your application:
+
+Visit [http://localhost:3000/landing](http://localhost:3000/landing) for our 4-step interactive setup:
+
+<CardGroup cols={2}>
+  <Card
+    title="Step 1: API Key Setup"
+    icon="key"
+  >
+    Connect to Moorcheh AI services
+  </Card>
+  <Card
+    title="Step 2: Branding"
+    icon="building"
+  >
+    Configure app name, company, and contact info
+  </Card>
+  <Card
+    title="Step 3: Theme Selection"
+    icon="palette"
+  >
+    Choose from 10+ beautiful themes
+  </Card>
+  <Card
+    title="Step 4: Typography & Complete"
+    icon="font"
+  >
+    Configure fonts and finish setup
+  </Card>
+</CardGroup>
+
+## Testing Your Setup
+
+### Demo Page
+
+Visit [http://localhost:3000/demo](http://localhost:3000/demo) to test themes and fonts.
+
+### Chat Interface
+
+Your main chat interface is available at [http://localhost:3000](http://localhost:3000).
+
+## Troubleshooting
+
+### Common Issues
+
+<AccordionGroup>
+  <Accordion title="Build Errors">
+    - Ensure Node.js version 18+ is installed
+    - Check that all dependencies are installed with `npm install`
+    - Verify your environment variables are set correctly
+  </Accordion>
+  <Accordion title="API Connection Issues">
+    - Verify your API key is correct
+    - Check that your namespace exists and has documents
+    - Ensure your configuration file is properly formatted
+  </Accordion>
+  <Accordion title="Theme/Font Issues">
+    - Clear browser cache
+    - Check that configuration files are saved correctly
+    - Restart the development server
+  </Accordion>
+</AccordionGroup>
+
+### Getting Help
+
+If you encounter issues:
+
+1. Check the [configuration guide](/integrations/chat-boilerplate/configuration)
+2. Review the [deployment guide](/integrations/chat-boilerplate/deployment)
+3. Contact support at [support@moorcheh.ai](mailto:support@moorcheh.ai)
+
+## Next Steps
+
+Now that you have your project set up, you can:
+
+- [Configure your application](/integrations/chat-boilerplate/configuration)
+- [Customize themes and branding](/integrations/chat-boilerplate/configuration)
+- [Deploy to production](/integrations/chat-boilerplate/deployment)

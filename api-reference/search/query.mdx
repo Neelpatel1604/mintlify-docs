@@ -1,0 +1,326 @@
+---
+title: "Search"
+api: "POST https://api.moorcheh.ai/v1/search"
+description: "Perform advanced semantic searches across one or multiple namespaces using text queries or vector embeddings with ITS scoring."
+contentType: "application/json"
+---
+
+## Overview
+
+The Search API allows you to perform advanced semantic searches across one or multiple namespaces using text queries or vector embeddings. The API uses ITS (Information Theoretic Similarity) scoring to provide highly accurate relevance rankings with human-readable labels.
+
+<Info>
+The Search API supports both text and vector namespaces, with automatic embedding generation for text queries and advanced binarization techniques for optimal performance.
+</Info>
+
+## Authentication
+
+<ParamField header="x-api-Key" type="string" required>
+  Your API key for authentication
+</ParamField>
+
+<ParamField header="Content-Type" type="string" required>
+  Must be `application/json`
+</ParamField>
+
+## Body Parameters
+
+<ParamField body="query" type="string | array" required>
+  Search query text or vector array. For text queries, you can include metadata and keyword filters using #key:value and #keyword syntax.
+</ParamField>
+
+<ParamField body="namespaces" type="array" required>
+  Array of namespace names to search in. All namespaces must be of the same type (text or vector).
+</ParamField>
+
+<ParamField body="top_k" type="number">
+  Number of results to return (default: 10)
+</ParamField>
+
+<ParamField body="threshold" type="number">
+  Minimum score threshold (0-1, required when kiosk_mode is true)
+</ParamField>
+
+<ParamField body="kiosk_mode" type="boolean">
+  Enable kiosk mode filtering (requires threshold parameter)
+</ParamField>
+
+## Advanced Filtering
+
+### Metadata Filters
+Use `#key:value` format to filter by document metadata:
+- `#category:tech` - Find documents with category = "tech"
+- `#priority:high` - Find high-priority documents
+- `#author:john` - Find documents by author "john"
+
+### Keyword Filters
+Use `#keyword` format to search within text content:
+- `#important` - Find documents containing "important"
+- `#urgent` - Find documents containing "urgent"
+
+### Combined Filters
+Combine semantic search with multiple filters:
+- `authentication #category:security #important` - Security docs about authentication containing "important"
+
+<Warning>
+Filters must be placed at the END of your query. Use hyphens instead of spaces in filter values.
+</Warning>
+
+<RequestExample>
+
+```bash Basic Text Search
+curl -X POST "https://api.moorcheh.ai/v1/search" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: your-api-key-here" \
+  -d '{
+    "query": "machine learning algorithms",
+    "namespaces": ["my-documents", "research-papers"],
+    "top_k": 10,
+    "kiosk_mode": true,
+    "threshold": 0.1
+  }'
+```
+
+```bash Search with Filters
+curl -X POST "https://api.moorcheh.ai/v1/search" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: your-api-key-here" \
+  -d '{
+    "query": "authentication #category:security",
+    "namespaces": ["tech-docs", "security-guides"],
+    "top_k": 15,
+    "kiosk_mode": true,
+    "threshold": 0.2
+  }'
+```
+
+```bash Vector Search
+curl -X POST "https://api.moorcheh.ai/v1/search" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: your-api-key-here" \
+  -d '{
+    "query": [0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8],
+    "namespaces": ["vector-embeddings"],
+    "top_k": 5,
+    "kiosk_mode": false
+  }'
+```
+
+```bash Combined Filters
+curl -X POST "https://api.moorcheh.ai/v1/search" \
+  -H "Content-Type: application/json" \
+  -H "x-api-key: your-api-key-here" \
+  -d '{
+    "query": "machine learning #category:research #published",
+    "namespaces": ["research-papers", "academic-docs"],
+    "top_k": 25,
+    "kiosk_mode": true,
+    "threshold": 0.15
+  }'
+```
+
+```json Basic Search Body
+{
+  "query": "machine learning algorithms",
+  "namespaces": ["my-documents", "research-papers"],
+  "top_k": 10,
+  "kiosk_mode": true,
+  "threshold": 0.1
+}
+```
+
+```json Filtered Search Body
+{
+  "query": "authentication #category:security",
+  "namespaces": ["tech-docs", "security-guides"],
+  "top_k": 15,
+  "kiosk_mode": true,
+  "threshold": 0.2
+}
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 200 - Success
+{
+  "results": [
+    {
+      "id": "doc-123",
+      "score": 0.856432,
+      "label": "Close Match",
+      "text": "Machine learning algorithms are computational methods that enable systems to automatically learn and improve from experience.",
+      "metadata": {
+        "title": "Introduction to ML",
+        "category": "education",
+        "tags": ["machine-learning", "algorithms"]
+      }
+    },
+    {
+      "id": "doc-456",
+      "score": 0.234567,
+      "label": "High Relevance",
+      "text": "Deep learning is a subset of machine learning that uses neural networks with multiple layers.",
+      "metadata": {
+        "author": "John Doe",
+        "published": "2024-01-15"
+      }
+    }
+  ],
+    "execution_time": 0.451749005,
+    "timings": {
+        "authorize": 0.267880763,
+        "parseValidate": 0.000720582,
+        "validateNamespace": 0.01685079,
+        "prepareVector": 0.00002464,
+        "fetchData": 0.037917629,
+        "earlyFilter": 0.000636537,
+        "calculateDistance": 0.000419438,
+        "selectCandidates": 0.000078646,
+        "fetchTopCandidates": 0.000044636,
+        "applyMetadataFilter": 0.00002322,
+        "calculateScores": 0.001484341,
+        "reorderFilter": 0.000140464,
+        "formatResponse": 0.000139094,
+        "total": 0.451749005
+    },
+    "optimization_info": {
+        "fetch_strategy": "single_phase_with_early_filtering",
+        "initial_fetch": "complete_data_with_early_filtering",
+        "complete_fetch": "no_additional_fetch_needed"
+    }
+}
+```
+
+```json 400 - Bad Request
+{
+  "status": "failure",
+  "message": "Bad Request: query field is required"
+}
+```
+
+```json 401 - Unauthorized
+{
+  "status": "failure",
+  "message": "Forbidden: Missing API Key information.",
+  "timings": {
+    "authorize": 0.001,
+    "total": 0.002
+  }
+}
+```
+
+```json 403 - Forbidden
+{
+  "status": "failure",
+  "message": "Forbidden"
+}
+```
+
+```json 404 - Not Found
+{
+  "status": "failure",
+  "message": "Namespace 'my-namespace' not found"
+}
+```
+
+```json 429 - Rate Limited
+{
+  "status": "failure",
+  "message": "API request limit reached for Professional plan (1000000 requests). Current usage: 1000000. Please upgrade your subscription for higher limits.",
+  "current_usage": 1000000,
+  "limit": 1000000
+}
+```
+
+```json 500 - Server Error
+{
+  "status": "failure",
+  "message": "Internal Server Error fetching namespaces."
+}
+```
+
+</ResponseExample>
+
+## ITS Scoring System
+
+Results are scored using Information Theoretic Similarity (ITS), providing nuanced relevance measurements:
+
+<CardGroup cols={3}>
+  <Card title="Close Match" icon="bullseye" color="#22c55e">
+    **≥0.8** - Near-exact semantic match
+  </Card>
+  <Card title="Very High" icon="circle-check" color="#3b82f6">
+    **≥0.4** - Strong semantic similarity
+  </Card>
+  <Card title="High" icon="circle-dot" color="#8b5cf6">
+    **≥0.2** - Strong semantic connection
+  </Card>
+  <Card title="Good" icon="circle" color="#eab308">
+    **≥0.1** - Moderate relevance
+  </Card>
+  <Card title="Low" icon="circle-minus" color="#f97316">
+    **≥0.05** - Weak but detectable
+  </Card>
+  <Card title="Very Low" icon="x" color="#ef4444">
+    **≥0.01** - Minimal connection
+  </Card>
+</CardGroup>
+
+## Response Fields
+
+### Search Results
+
+<ResponseField name="results" type="array">
+  Array of search results ordered by ITS score (descending)
+</ResponseField>
+
+<ResponseField name="results[].id" type="string">
+  Unique identifier for the document
+</ResponseField>
+
+<ResponseField name="results[].score" type="number">
+  ITS (Information Theoretic Similarity) score between 0 and 1
+</ResponseField>
+
+<ResponseField name="results[].label" type="string">
+  Human-readable relevance label based on ITS score
+</ResponseField>
+
+<ResponseField name="results[].text" type="string">
+  Original text content (only for text namespaces)
+</ResponseField>
+
+<ResponseField name="results[].metadata" type="object">
+  Additional metadata associated with the document
+</ResponseField>
+
+### Performance Information
+
+<ResponseField name="execution_time" type="number">
+  Total time taken to process the search in seconds
+</ResponseField>
+
+<ResponseField name="timings" type="object">
+  Detailed timing breakdown for each search phase
+</ResponseField>
+
+<ResponseField name="optimization_info" type="object">
+  Information about the search optimization strategy used
+</ResponseField>
+
+## Use Cases
+
+- **Document Retrieval**: Find relevant documents across knowledge bases
+- **Content Discovery**: Explore related content with semantic understanding
+- **Customer Support**: Find relevant answers from support documentation
+- **Research & Analysis**: Search through research papers and technical documents
+- **E-commerce**: Product similarity and recommendation engines
+- **Filtered Search**: Combine semantic search with metadata and keyword filters
+
+## Related Endpoints
+
+- [Upload Text Data](/api-reference/data/upload-text) - Add searchable text documents
+- [Upload Vector Data](/api-reference/data/upload-vector) - Add searchable vector embeddings
+- [List Namespaces](/api-reference/namespaces/list) - View available namespaces for searching

@@ -1,0 +1,196 @@
+---
+title: "MCP Setup"
+description: "Learn how to install, configure, and start the MCP server"
+---
+
+# MCP Setup
+
+## Quick Start Guide
+
+There are two ways to use the Moorcheh MCP server:
+
+## Option 1: NPX (Recommended - No Installation Required)
+
+The easiest way to get started:
+
+```bash Run with NPX
+# Set your API key and run directly
+MOORCHEH_API_KEY=your_api_key_here npx -y @moorchehai/mcp
+```
+
+## Option 2: Manual Installation
+
+### 1. Clone the repository
+
+```bash Clone Repository
+git clone https://github.com/moorcheh-ai/moorcheh-mcp.git
+cd moorcheh-mcp
+```
+
+### 2. Install dependencies
+
+```bash Install Dependencies
+npm install
+```
+
+## Step 2: Configure Your API Key
+
+### 1. Get your Moorcheh API key
+
+- Visit [Moorcheh Dashboard](https://app.moorcheh.ai)
+- Sign in to your account
+- Go to your account settings
+- Generate or copy your API key
+
+### 2. Set up your environment
+
+```bash Copy Environment File
+cp env.example .env
+```
+
+### 3. Edit the .env file
+
+```bash Edit Environment File
+# Open .env in your preferred editor
+# Replace 'your_moorcheh_api_key_here' with your actual API key
+MOORCHEH_API_KEY=your_actual_api_key_here
+```
+
+## Step 3: Start the Server
+
+```bash Start Server
+npm start
+```
+
+That's it! Your Moorcheh MCP server is now running and ready to use.
+
+## Setting Up with Claude Desktop
+
+### Step 1: Install Claude Desktop
+
+1. Download Claude Desktop from [https://claude.ai/download](https://claude.ai/download)
+2. Install and launch Claude Desktop
+
+### Step 2: Configure MCP Server
+
+1. In Claude Desktop, go to **Settings** → **Developer**
+2. Click **Edit Config**
+3. Configure the server with these settings:
+
+#### Option A: Using NPX (Recommended)
+
+```json Claude Desktop Configuration - NPX
+{
+  "mcpServers": {
+    "moorcheh": {
+      "command": "npx",
+      "args": ["-y", "@moorchehai/mcp"],
+      "env": {
+        "MOORCHEH_API_KEY": "your_actual_api_key_here"
+      }
+    }
+  }
+}
+```
+
+#### Option B: Local Installation
+
+```json Claude Desktop Configuration - Local
+{
+  "mcpServers": {
+    "moorcheh": {
+      "command": "node",
+      "args": [
+        "path\\\\to\\\\moorcheh-mcp\\\\src\\\\server\\\\index.js"
+      ],
+      "env": {
+        "NODE_ENV": "development"
+      }
+    }
+  }
+}
+```
+
+<Warning>
+**Important:** 
+- For **Option A**: Replace `your_actual_api_key_here` with your actual Moorcheh API key
+- For **Option B**: Replace `path\\to\\moorcheh-mcp\\src\\server\\index.js` with the actual path to your `index.js` file and create .env in **moorcheh-mcp** with your API key
+</Warning>
+
+### Step 3: Test the Connection
+
+1. Save the configuration file and restart Claude Desktop completely
+2. Start a new conversation in Claude Desktop
+3. Ask Claude to list the available tools: "Can you list down my namespaces?"
+4. You should see tools like `list-namespaces`, `search`, `answer`, etc.
+
+## Setting Up with Cursor
+
+### Step 1: Install Cursor
+
+1. Download Cursor from [https://cursor.com](https://cursor.com)
+2. Install and launch Cursor
+
+### Step 2: Configure MCP Server
+
+1. In Cursor, go to **Settings** → **Tools & integration**
+2. Click **Add MCP Server**
+3. Configure the server with these settings:
+
+#### Option A: Using NPX (Recommended)
+
+```json Cursor Configuration - NPX
+{
+  "mcpServers": {
+    "moorcheh": {
+      "command": "npx",
+      "args": ["-y", "@moorchehai/mcp"],
+      "env": {
+        "MOORCHEH_API_KEY": "your_actual_api_key_here"
+      }
+    }
+  }
+}
+```
+
+#### Option B: Local Installation
+
+```json Cursor Configuration - Local
+{
+  "mcpServers": {
+    "moorcheh": {
+      "command": "node",
+      "args": [
+        "path\\\\to\\\\moorcheh-mcp\\\\src\\\\server\\\\index.js"
+      ],
+      "env": {
+        "NODE_ENV": "development"
+      }
+    }
+  }
+}
+```
+
+### Step 3: Set Your API Key
+
+- **For Option A**: Replace `your_actual_api_key_here` with your actual Moorcheh API key in the configuration
+- **For Option B**: Create .env in **moorcheh-mcp** directory and add your API key with `MOORCHEH_API_KEY=your_key_here`
+
+### Step 4: Test the Connection
+
+1. Open a new chat in Cursor (Cmd/Ctrl + L)
+2. Ask the AI to list available Moorcheh tools: "What Moorcheh tools can I use?"
+3. You should see tools like `list-namespaces`, `search`, `answer`, etc.
+
+## Prerequisites
+
+- **Node.js:** Version 18.0.0 or higher
+- **Moorcheh Account:** Active account with API access
+- **Git:** For cloning the repository
+
+## Environment Variables
+
+| Variable | Description | Required | Default |
+|----------|-------------|----------|---------|
+| `MOORCHEH_API_KEY` | Your Moorcheh API key | Yes | None |
+

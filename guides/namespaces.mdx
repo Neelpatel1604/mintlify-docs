@@ -1,0 +1,171 @@
+---
+title: "Namespaces"
+description: "Understand how to organize and manage your data with namespaces"
+---
+
+## What are Namespaces?
+
+Namespaces are isolated containers for storing and organizing your data in Moorcheh. They provide separate environments for your documents or vectors, ensuring data separation and enabling organized data management.
+
+<Info>
+Each namespace can store either **text documents** or **vector embeddings**, but not both. Choose the type based on your use case.
+</Info>
+
+## Namespace Types
+
+<Tabs>
+  <Tab title="Text Namespaces">
+    ### Text Namespaces
+
+    Text namespaces automatically handle embedding generation. Simply upload your text, and Moorcheh takes care of the vectorization.
+
+    **Best for:**
+    - Document search
+    - Knowledge bases
+    - Content management
+    - File uploads (PDF, DOCX, etc.)
+
+    **Example:**
+    ```python
+    # Create text namespace
+    client.create_namespace(
+        namespace_name="my-documents",
+        type="text"
+    )
+    ```
+  </Tab>
+
+  <Tab title="Vector Namespaces">
+    ### Vector Namespaces
+
+    Vector namespaces store pre-computed embeddings, giving you full control over the embedding model and process.
+
+    **Best for:**
+    - Custom embedding models
+    - Pre-existing embeddings
+    - Advanced use cases
+
+    **Example:**
+    ```python
+    # Create vector namespace
+    client.create_namespace(
+        namespace_name="my-vectors",
+        type="vector",
+        vector_dimension=1536  # Must match your embeddings
+    )
+    ```
+  </Tab>
+</Tabs>
+
+## Creating a Namespace
+
+<CodeGroup>
+```python Python SDK
+from moorcheh_sdk import MoorchehClient
+
+client = MoorchehClient(api_key="your-api-key")
+
+# Text namespace
+namespace = client.create_namespace(
+    namespace_name="my-documents",
+    type="text"
+)
+
+# Vector namespace with specific dimension
+namespace = client.create_namespace(
+    namespace_name="my-vectors",
+    type="vector",
+    vector_dimension=1536
+)
+```
+
+```bash cURL
+# Text namespace
+curl -X POST "https://api.moorcheh.ai/v1/namespaces" \
+  -H "Content-Type: application/json" \
+  -H "x-api-Key: your-api-key" \
+  -d '{
+    "namespace_name": "my-documents",
+    "type": "text"
+  }'
+
+# Vector namespace
+curl -X POST "https://api.moorcheh.ai/v1/namespaces" \
+  -H "Content-Type: application/json" \
+  -H "x-api-Key: your-api-key" \
+  -d '{
+    "namespace_name": "my-vectors",
+    "type": "vector",
+    "vector_dimension": 1536
+  }'
+```
+</CodeGroup>
+
+## Listing Namespaces
+
+<CodeGroup>
+```python Python SDK
+# Get all namespaces
+namespaces = client.list_namespaces()
+
+for ns in namespaces:
+    print(f"Name: {ns['namespace_name']}")
+    print(f"Type: {ns['type']}")
+    print(f"Items: {ns['item_count']}")
+```
+
+```bash cURL
+curl -X GET "https://api.moorcheh.ai/v1/namespaces" \
+  -H "Content-Type: application/json" \
+  -H "x-api-Key: your-api-key"
+```
+</CodeGroup>
+
+## Deleting a Namespace
+
+<Warning>
+Deleting a namespace is **permanent** and cannot be undone. All data in the namespace will be lost.
+</Warning>
+
+<CodeGroup>
+```python Python SDK
+# Delete namespace
+client.delete_namespace(namespace_name="my-documents")
+```
+
+```bash cURL
+curl -X DELETE "https://api.moorcheh.ai/v1/namespaces/my-documents" \
+  -H "Content-Type: application/json" \
+  -H "x-api-Key: your-api-key"
+```
+</CodeGroup>
+
+## Naming Guidelines
+
+<Check>**Good namespace names:**</Check>
+- `product-docs`
+- `customer_support_v2`
+- `legal-contracts-2024`
+- `blog_embeddings`
+
+<Warning>**Avoid:**</Warning>
+- Special characters (except `-` and `_`)
+- Spaces
+- Very long names (> 64 characters)
+
+## Next Steps
+
+<CardGroup cols={2}>
+  <Card title="Upload Text" icon="upload" href="/api-reference/data/upload-text">
+    Learn how to upload text documents
+  </Card>
+  <Card title="Upload Vectors" icon="database" href="/api-reference/data/upload-vector">
+    Work with custom vector embeddings
+  </Card>
+  <Card title="Search" icon="magnifying-glass" href="/api-reference/search/query">
+    Perform semantic search
+  </Card>
+  <Card title="API Reference" icon="code" href="/api-reference/namespaces/create">
+    Complete namespace API documentation
+  </Card>
+</CardGroup>

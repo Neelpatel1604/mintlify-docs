@@ -1,0 +1,137 @@
+---
+title: "Create Namespace"
+api: "POST https://api.moorcheh.ai/v1/namespaces"
+description: "Create a new namespace to organize and store your data. Namespaces can be either text-based for document storage or vector-based for embedding storage."
+contentType: "application/json"
+---
+
+## Overview
+
+Create a new namespace to organize and store your data. Namespaces provide isolated environments for your documents or vectors, ensuring data separation and enabling organized data management.
+
+<Note>
+Namespace names must be unique within your account and can only contain alphanumeric characters, hyphens, and underscores.
+</Note>
+
+## Authentication
+
+<ParamField header="x-api-Key" type="string" required>
+  Your API key for authentication
+</ParamField>
+
+<ParamField header="Content-Type" type="string" required>
+  Must be `application/json`
+</ParamField>
+
+## Body
+
+<ParamField body="namespace_name" type="string" required>
+  Unique name for the namespace (alphanumeric, hyphens, underscores only)
+</ParamField>
+
+<ParamField body="type" type="string" required>
+  Namespace type: "text" or "vector"
+</ParamField>
+
+<ParamField body="vector_dimension" type="number">
+  Required for vector namespaces. Dimension of vectors to be stored (e.g., 1536 for OpenAI embeddings)
+</ParamField>
+
+<RequestExample>
+
+```bash Text Namespace
+curl -X POST "https://api.moorcheh.ai/v1/namespaces" \
+  -H "Content-Type: application/json" \
+  -H "x-api-Key: your-api-key-here" \
+  -d '{
+    "namespace_name": "my-documents",
+    "type": "text"
+  }'
+```
+
+```bash Vector Namespace
+curl -X POST "https://api.moorcheh.ai/v1/namespaces" \
+  -H "Content-Type: application/json" \
+  -H "x-api-Key: your-api-key-here" \
+  -d '{
+    "namespace_name": "my-embeddings",
+    "type": "vector",
+    "vector_dimension": 1536
+  }'
+```
+
+
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 201 - Created
+{
+  "status": "success",
+  "message": "Namespace 'my-documents' created successfully. ✅",
+  "namespace_name": "my-documents"
+}
+```
+
+```json 400 - Bad Request
+{
+  "status": "failure",
+  "message": "Bad Request: namespace_name must contain only alphanumeric characters, hyphens, and underscores."
+}
+```
+
+```json 401 - Unauthorized
+{
+  "status": "failure",
+  "message": "Unauthorized: Invalid API key"
+}
+```
+
+```json 403 - Forbidden (Namespace Limit)
+{
+  "status": "failure",
+  "message": "Namespace limit reached for Free tier (5 namespaces). Please upgrade your subscription for higher limits."
+}
+```
+
+```json 403 - Forbidden (API Key Activation)
+{
+  "status": "failure",
+  "message": "Forbidden"
+}
+```
+
+```json 409 - Conflict
+{
+  "status": "failure",
+  "message": "Namespace 'my-namespace' already exists."
+}
+```
+
+```json 500 - Server Error
+{
+  "status": "failure",
+  "message": "Internal Server Error creating namespace."
+}
+```
+
+</ResponseExample>
+
+## Next Steps
+
+After creating a namespace, you can:
+
+- [Upload text documents](/api-reference/data/upload-text) for text namespaces
+- [Upload vector data](/api-reference/data/upload-vector) for vector namespaces
+- [List all namespaces](/api-reference/namespaces/list) to view your created namespaces
+- [Search your data](/api-reference/search/query) once data is uploaded
+
+## Important Notes
+
+<Warning>
+- Namespace type cannot be changed after creation
+- Vector dimension must be specified for vector namespaces and cannot be modified
+- Namespace creation counts toward your tier limits
+- Namespace names must be unique within your account
+</Warning>

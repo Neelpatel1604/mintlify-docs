@@ -1,0 +1,155 @@
+---
+title: "Delete Namespace"
+api: "DELETE https://api.moorcheh.ai/v1/namespaces/{namespace_name}"
+description: "Permanently delete a namespace and all its contained data. This action cannot be undone."
+contentType: "application/json"
+---
+
+## Overview
+
+Permanently delete a namespace and all its contained documents or vectors. This operation is irreversible and will free up storage space in your account.
+
+<Warning>
+This action is permanent and cannot be undone. All data in the namespace will be lost forever.
+</Warning>
+
+## Authentication
+
+<ParamField header="x-api-Key" type="string" required>
+  Your API key for authentication
+</ParamField>
+
+<ParamField header="Content-Type" type="string" required>
+  Must be `application/json`
+</ParamField>
+
+## Path Parameters
+
+<ParamField path="namespace_name" type="string" required>
+  The name of the namespace to delete
+</ParamField>
+
+<RequestExample>
+
+```bash Delete Namespace
+curl -X DELETE "https://api.moorcheh.ai/v1/namespaces/my-old-documents" \
+  -H "x-api-Key: your-api-key-here"
+```
+
+</RequestExample>
+
+<ResponseExample>
+
+```json 202 - Accepted
+{
+  "status": "pending",
+  "message": "Request accepted. Namespace 'my-documents' has been queued for deletion."
+}
+```
+
+```json 401 - Unauthorized
+{
+  "status": "failure",
+  "message": "Unauthorized: Invalid API key"
+}
+```
+
+```json 403 - Forbidden
+{
+  "status": "failure",
+  "message": "Forbidden"
+}
+```
+
+```json 404 - Not Found
+{
+  "status": "failure",
+  "message": "Namespace 'my-namespace' not found or does not belong to this user."
+}
+```
+
+```json 429 - Rate Limited
+{
+  "status": "failure",
+  "message": "API request limit reached for Professional plan (1000000 requests). Current usage: 1000000. Please upgrade your subscription for higher limits.",
+  "current_usage": 1000000,
+  "limit": 1000000
+}
+```
+
+```json 500 - Server Error
+{
+  "status": "failure",
+  "message": "Internal Server Error fetching namespaces."
+}
+```
+
+</ResponseExample>
+
+## Response Fields
+
+<ResponseField name="status" type="string">
+  Status of the deletion request ("success" for accepted deletions)
+</ResponseField>
+
+<ResponseField name="message" type="string">
+  Human-readable confirmation message
+</ResponseField>
+
+<ResponseField name="namespace_name" type="string">
+  Name of the namespace being deleted
+</ResponseField>
+
+<ResponseField name="deletion_started_at" type="string">
+  ISO 8601 timestamp when deletion was initiated
+</ResponseField>
+
+<ResponseField name="estimated_completion" type="string">
+  Estimated ISO 8601 timestamp when deletion will be complete
+</ResponseField>
+
+## Deletion Process
+
+<Steps>
+  <Step title="Initiate Deletion">
+    The DELETE request starts the namespace deletion process
+  </Step>
+  <Step title="Background Processing">
+    The system removes all documents/vectors and associated metadata
+  </Step>
+  <Step title="Storage Cleanup">
+    Storage space is freed and becomes available for new data
+  </Step>
+  <Step title="Index Updates">
+    Search indexes and internal references are updated
+  </Step>
+</Steps>
+
+## Important Notes
+
+<Note>
+- Deletion is processed asynchronously and may take several minutes for large namespaces
+- You can continue using other namespaces while deletion is in progress
+- Storage quota is updated once deletion is complete
+- Deleted namespace names become available for reuse after completion
+</Note>
+
+## Best Practices
+
+- **Backup Important Data**: Export or backup critical data before deletion
+- **Verify Namespace Name**: Double-check the namespace name before deletion
+- **Monitor Usage**: Use the list namespaces endpoint to confirm deletion completion
+- **Plan Downtime**: Consider impact on applications using the namespace
+
+## Use Cases
+
+- **Data Cleanup**: Remove old or unused namespaces to free up storage
+- **Project Completion**: Delete namespaces for completed projects
+- **Resource Management**: Manage namespace limits by removing unused ones
+- **Data Lifecycle**: Implement data retention policies
+
+## Related Endpoints
+
+- [List Namespaces](/api-reference/namespaces/list) - View all namespaces before deletion
+- [Create Namespace](/api-reference/namespaces/create) - Create a new namespace
+- [Delete Data](/api-reference/data/delete) - Delete specific data within a namespace
